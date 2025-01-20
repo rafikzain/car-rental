@@ -27,7 +27,7 @@ const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   brand: z.string().min(2, "Brand must be at least 2 characters"),
   type: z.enum(["rent", "sale"]),
-  price: z.string().transform((val) => Number(val)),
+  price: z.number().min(0, "Price must be positive"),
   image: z.string().url("Must be a valid URL"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   engine: z.string(),
@@ -46,7 +46,7 @@ const Admin = () => {
       name: "",
       brand: "",
       type: "sale",
-      price: "",
+      price: 0,
       image: "",
       description: "",
       engine: "",
@@ -59,7 +59,12 @@ const Admin = () => {
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const newCar: Car = {
       id: featuredCars.length + 1,
-      ...values,
+      name: values.name,
+      brand: values.brand,
+      type: values.type,
+      price: values.price,
+      image: values.image,
+      description: values.description,
       specs: {
         engine: values.engine,
         power: values.power,
@@ -150,6 +155,7 @@ const Admin = () => {
                         type="number"
                         placeholder="89990"
                         {...field}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
                       />
                     </FormControl>
                     <FormMessage />
