@@ -4,9 +4,9 @@ export interface Car {
   brand: string;
   type: "rent" | "sale";
   price: number;
-  image: string;
+  image?: string; // Made optional since it's not in DB
   description: string;
-  specs: {
+  specs?: { // Made optional since it's not in DB
     engine: string;
     power: string;
     acceleration: string;

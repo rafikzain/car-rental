@@ -14,7 +14,7 @@ const Index = () => {
     queryFn: async () => {
       let query = supabase
         .from("cars")
-        .select("*")
+        .select("*, car_images(image_url)")
         .order("created_at", { ascending: false });
 
       if (searchTerm) {
@@ -29,7 +29,21 @@ const Index = () => {
         throw error;
       }
 
-      return data as Car[];
+      // Transform the data to match our Car type
+      return data.map((car: any) => ({
+        id: car.id,
+        name: car.name,
+        brand: car.brand,
+        type: car.type as "rent" | "sale",
+        price: car.price,
+        image: car.car_images?.[0]?.image_url || "/placeholder.svg",
+        description: car.description,
+        userId: car.user_id,
+        location: car.location,
+        phoneNumber: car.phone_number,
+        featured: car.featured,
+        createdAt: new Date(car.created_at)
+      })) as Car[];
     },
   });
 
