@@ -9,7 +9,186 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      car_images: {
+        Row: {
+          car_id: number | null
+          created_at: string
+          id: number
+          image_url: string
+        }
+        Insert: {
+          car_id?: number | null
+          created_at?: string
+          id?: number
+          image_url: string
+        }
+        Update: {
+          car_id?: number | null
+          created_at?: string
+          id?: number
+          image_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "car_images_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cars: {
+        Row: {
+          brand: string
+          created_at: string
+          description: string
+          featured: boolean | null
+          id: number
+          location: string | null
+          name: string
+          phone_number: string | null
+          price: number
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          brand: string
+          created_at?: string
+          description: string
+          featured?: boolean | null
+          id?: number
+          location?: string | null
+          name: string
+          phone_number?: string | null
+          price: number
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          brand?: string
+          created_at?: string
+          description?: string
+          featured?: boolean | null
+          id?: number
+          location?: string | null
+          name?: string
+          phone_number?: string | null
+          price?: number
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          is_banned: boolean | null
+          is_scammer: boolean | null
+          location: string | null
+          name: string
+          phone_number: string | null
+          user_type: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          is_banned?: boolean | null
+          is_scammer?: boolean | null
+          location?: string | null
+          name: string
+          phone_number?: string | null
+          user_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_banned?: boolean | null
+          is_scammer?: boolean | null
+          location?: string | null
+          name?: string
+          phone_number?: string | null
+          user_type?: string
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          car_id: number | null
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number | null
+          seller_id: string | null
+          transaction_type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          car_id?: number | null
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number | null
+          seller_id?: string | null
+          transaction_type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          car_id?: number | null
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number | null
+          seller_id?: string | null
+          transaction_type?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          buyer_id: string | null
+          car_id: number | null
+          created_at: string
+          id: string
+          seller_id: string | null
+          type: string | null
+        }
+        Insert: {
+          buyer_id?: string | null
+          car_id?: number | null
+          created_at?: string
+          id?: string
+          seller_id?: string | null
+          type?: string | null
+        }
+        Update: {
+          buyer_id?: string | null
+          car_id?: number | null
+          created_at?: string
+          id?: string
+          seller_id?: string | null
+          type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
