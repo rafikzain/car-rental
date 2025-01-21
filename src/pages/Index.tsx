@@ -17,6 +17,7 @@ const featuredCars: Car[] = [
       acceleration: "0-60 mph in 3.1s",
       transmission: "Single-speed",
     },
+    createdAt: new Date(), // Add the createdAt field
   },
   {
     id: 2,
@@ -32,6 +33,7 @@ const featuredCars: Car[] = [
       acceleration: "0-60 mph in 3.2s",
       transmission: "7-speed PDK",
     },
+    createdAt: new Date(), // Add the createdAt field
   },
   {
     id: 3,
@@ -47,6 +49,7 @@ const featuredCars: Car[] = [
       acceleration: "0-60 mph in 4.5s",
       transmission: "9-speed automatic",
     },
+    createdAt: new Date(), // Add the createdAt field
   },
 ];
 

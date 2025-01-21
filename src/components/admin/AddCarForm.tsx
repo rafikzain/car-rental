@@ -57,7 +57,7 @@ const AddCarForm = ({ onSubmit }: AddCarFormProps) => {
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     const newCar: Car = {
-      id: Date.now(), // Using timestamp as a temporary ID
+      id: Date.now(),
       name: values.name,
       brand: values.brand,
       type: values.type,
@@ -70,6 +70,7 @@ const AddCarForm = ({ onSubmit }: AddCarFormProps) => {
         acceleration: values.acceleration,
         transmission: values.transmission,
       },
+      createdAt: new Date(), // Add the createdAt field
     };
     onSubmit(newCar);
     form.reset();
