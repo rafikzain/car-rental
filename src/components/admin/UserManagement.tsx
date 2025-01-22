@@ -5,6 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@/types";
+import type { User as AuthUser } from "@supabase/supabase-js";
 
 export default function UserManagement() {
   const { toast } = useToast();
@@ -28,7 +29,7 @@ export default function UserManagement() {
 
       // Map profiles to our User type
       return profiles.map((profile): User => {
-        const authUser = authUsers.find(u => u.id === profile.id);
+        const authUser = (authUsers as AuthUser[]).find(u => u.id === profile.id);
         return {
           id: profile.id,
           email: authUser?.email || "",
