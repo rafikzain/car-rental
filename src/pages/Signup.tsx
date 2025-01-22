@@ -20,7 +20,9 @@ import {
 
 const Signup = () => {
   const [email, setEmail] = useState("");
+  const [confirmEmail, setConfirmEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
   const [userType, setUserType] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -29,6 +31,27 @@ const Signup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate email confirmation
+    if (email !== confirmEmail) {
+      toast({
+        title: "Error",
+        description: "Emails do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate password confirmation
+    if (password !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -87,6 +110,19 @@ const Signup = () => {
               />
             </div>
             <div className="space-y-2">
+              <label htmlFor="confirmEmail" className="text-sm font-medium">
+                Confirm Email
+              </label>
+              <Input
+                id="confirmEmail"
+                type="email"
+                placeholder="Confirm your email"
+                value={confirmEmail}
+                onChange={(e) => setConfirmEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
               <label htmlFor="password" className="text-sm font-medium">
                 Password
               </label>
@@ -96,6 +132,19 @@ const Signup = () => {
                 placeholder="Create a password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="confirmPassword" className="text-sm font-medium">
+                Confirm Password
+              </label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="Confirm your password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
             </div>
