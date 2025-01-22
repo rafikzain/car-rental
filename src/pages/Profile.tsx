@@ -8,6 +8,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Car, User } from "@/types";
 import CarList from "@/components/profile/CarList";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { AdminUserList } from "@supabase/auth-ui-shared";
+
+type AuthUser = {
+  id: string;
+  email?: string;
+};
 
 export default function Profile() {
   const { id } = useParams();
@@ -32,13 +38,14 @@ export default function Profile() {
         if (profile) {
           // Get user email from auth
           const { data: { users } } = await supabase.auth.admin.listUsers();
-          const authUser = users.find(u => u.id === profile.id);
+          const authUsers = users as AuthUser[];
+          const authUser = authUsers.find(u => u.id === profile.id);
 
           setUser({
             id: profile.id,
             email: authUser?.email || "",
             name: profile.name,
-            userType: profile.user_type,
+            userType: profile.user_type as "buyer" | "seller" | "both" | "admin",
             phoneNumber: profile.phone_number,
             location: profile.location,
             isBanned: profile.is_banned,
@@ -76,21 +83,25 @@ export default function Profile() {
 
           setSoldCars(soldTransactions?.map(t => ({
             ...t.cars,
+            type: t.cars.type as "rent" | "sale",
             createdAt: new Date(t.cars.created_at)
           })) || []);
 
           setBoughtCars(boughtTransactions?.map(t => ({
             ...t.cars,
+            type: t.cars.type as "rent" | "sale",
             createdAt: new Date(t.cars.created_at)
           })) || []);
 
           setRentedCars(rentedTransactions?.map(t => ({
             ...t.cars,
+            type: t.cars.type as "rent" | "sale",
             createdAt: new Date(t.cars.created_at)
           })) || []);
 
           setRentingCars(rentingTransactions?.map(t => ({
             ...t.cars,
+            type: t.cars.type as "rent" | "sale",
             createdAt: new Date(t.cars.created_at)
           })) || []);
         }
