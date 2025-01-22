@@ -13,13 +13,34 @@ export default function UserManagement() {
   const { data: users, refetch } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get profiles
+      const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      return data as User[];
+      if (profilesError) throw profilesError;
+
+      // Get users from auth to get emails
+      const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers();
+      
+      if (authError) throw authError;
+
+      // Map profiles to our User type
+      return profiles.map((profile): User => {
+        const authUser = authUsers.find(u => u.id === profile.id);
+        return {
+          id: profile.id,
+          email: authUser?.email || "",
+          name: profile.name,
+          userType: profile.user_type as "buyer" | "seller" | "both" | "admin",
+          phoneNumber: profile.phone_number || undefined,
+          location: profile.location || undefined,
+          isBanned: profile.is_banned || false,
+          isScammer: profile.is_scammer || false,
+          createdAt: new Date(profile.created_at),
+        };
+      });
     },
   });
 
