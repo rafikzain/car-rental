@@ -8,7 +8,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Car, User } from "@/types";
 import CarList from "@/components/profile/CarList";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { AdminUserList } from "@supabase/auth-ui-shared";
 
 type AuthUser = {
   id: string;
@@ -38,7 +37,7 @@ export default function Profile() {
         if (profile) {
           // Get user email from auth
           const { data: { users } } = await supabase.auth.admin.listUsers();
-          const authUsers = users as AuthUser[];
+          const authUsers = users as unknown as AuthUser[];
           const authUser = authUsers.find(u => u.id === profile.id);
 
           setUser({
@@ -46,10 +45,10 @@ export default function Profile() {
             email: authUser?.email || "",
             name: profile.name,
             userType: profile.user_type as "buyer" | "seller" | "both" | "admin",
-            phoneNumber: profile.phone_number,
-            location: profile.location,
-            isBanned: profile.is_banned,
-            isScammer: profile.is_scammer,
+            phoneNumber: profile.phone_number || null,
+            location: profile.location || null,
+            isBanned: profile.is_banned || false,
+            isScammer: profile.is_scammer || false,
             createdAt: new Date(profile.created_at)
           });
 
@@ -81,29 +80,20 @@ export default function Profile() {
             .eq('seller_id', id)
             .eq('type', 'rent');
 
-          setSoldCars(soldTransactions?.map(t => ({
+          const mapTransactionToCar = (t: any): Car => ({
             ...t.cars,
-            type: t.cars.type as "rent" | "sale",
-            createdAt: new Date(t.cars.created_at)
-          })) || []);
+            type: t.cars.type === "sale" ? "sale" : "rent",
+            createdAt: new Date(t.cars.created_at),
+            userId: t.cars.user_id,
+            featured: t.cars.featured || false,
+            location: t.cars.location || null,
+            phoneNumber: t.cars.phone_number || null
+          });
 
-          setBoughtCars(boughtTransactions?.map(t => ({
-            ...t.cars,
-            type: t.cars.type as "rent" | "sale",
-            createdAt: new Date(t.cars.created_at)
-          })) || []);
-
-          setRentedCars(rentedTransactions?.map(t => ({
-            ...t.cars,
-            type: t.cars.type as "rent" | "sale",
-            createdAt: new Date(t.cars.created_at)
-          })) || []);
-
-          setRentingCars(rentingTransactions?.map(t => ({
-            ...t.cars,
-            type: t.cars.type as "rent" | "sale",
-            createdAt: new Date(t.cars.created_at)
-          })) || []);
+          setSoldCars(soldTransactions?.map(mapTransactionToCar) || []);
+          setBoughtCars(boughtTransactions?.map(mapTransactionToCar) || []);
+          setRentedCars(rentedTransactions?.map(mapTransactionToCar) || []);
+          setRentingCars(rentingTransactions?.map(mapTransactionToCar) || []);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
