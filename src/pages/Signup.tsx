@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -32,7 +33,6 @@ const Signup = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate email confirmation
     if (email !== confirmEmail) {
       toast({
         title: "Error",
@@ -42,7 +42,6 @@ const Signup = () => {
       return;
     }
 
-    // Validate password confirmation
     if (password !== confirmPassword) {
       toast({
         title: "Error",
@@ -55,16 +54,42 @@ const Signup = () => {
     setIsLoading(true);
 
     try {
-      // TODO: Implement Supabase authentication
+      const { error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            user_type: userType,
+          },
+          emailRedirectTo: `${window.location.origin}/login`,
+        },
+      });
+
+      if (signUpError) throw signUpError;
+
+      // Create profile record
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([
+          {
+            id: (await supabase.auth.getUser()).data.user?.id,
+            name,
+            user_type: userType as "buyer" | "seller" | "both" | "admin",
+          },
+        ]);
+
+      if (profileError) throw profileError;
+
       toast({
         title: "Success",
-        description: "Account created successfully",
+        description: "Please check your email to verify your account",
       });
       navigate("/login");
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to create account",
+        description: error.message || "Failed to create account",
         variant: "destructive",
       });
     } finally {
