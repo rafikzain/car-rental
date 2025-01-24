@@ -6,6 +6,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+import { useRef } from "react";
 
 const carImages = [
   {
@@ -23,9 +25,17 @@ const carImages = [
 ];
 
 const Hero = () => {
+  const plugin = useRef(
+    Autoplay({ delay: 5000, stopOnInteraction: true })
+  );
+
   return (
     <div className="relative min-h-[80vh] overflow-hidden bg-gray-900">
-      <Carousel className="w-full h-[80vh]" opts={{ loop: true }}>
+      <Carousel 
+        className="w-full h-[80vh]" 
+        opts={{ loop: true }}
+        plugins={[plugin.current]}
+      >
         <CarouselContent>
           {carImages.map((image, index) => (
             <CarouselItem key={index} className="relative">
