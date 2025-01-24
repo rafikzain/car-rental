@@ -14,8 +14,14 @@ const Index = () => {
     queryFn: async () => {
       let query = supabase
         .from("cars")
-        .select("*, car_images(image_url)")
-        .order("created_at", { ascending: false });
+        .select(`
+          *,
+          car_images (
+            image_url
+          )
+        `)
+        .order('created_at', { ascending: false })
+        .limit(9); // Show up to 9 recent cars
 
       if (searchTerm) {
         query = query.or(
@@ -29,7 +35,6 @@ const Index = () => {
         throw error;
       }
 
-      // Transform the data to match our Car type
       return data.map((car: any) => ({
         id: car.id,
         name: car.name,
@@ -59,11 +64,13 @@ const Index = () => {
           <SearchBar onSearch={handleSearch} />
         </div>
         {isLoading ? (
-          <div className="text-center">Loading...</div>
+          <div className="flex justify-center items-center min-h-[200px]">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
         ) : (
           <>
             <h2 className="text-3xl font-bold text-gray-800 mb-8">
-              {searchTerm ? "Search Results" : "Featured Vehicles"}
+              {searchTerm ? "Search Results" : "Recent Listings"}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {cars.map((car) => (
@@ -71,7 +78,7 @@ const Index = () => {
               ))}
             </div>
             {cars.length === 0 && (
-              <div className="text-center text-gray-500">
+              <div className="text-center text-gray-500 py-12">
                 No cars found matching your search.
               </div>
             )}
