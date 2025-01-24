@@ -11,16 +11,16 @@ import { useRef } from "react";
 
 const carImages = [
   {
-    url: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
-    caption: "Luxury at its finest",
+    url: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+    caption: "Discover Luxury",
   },
   {
-    url: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
-    caption: "Performance meets style",
+    url: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+    caption: "Experience Performance",
   },
   {
-    url: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
-    caption: "Classic elegance",
+    url: "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+    caption: "Embrace Excellence",
   },
 ];
 
