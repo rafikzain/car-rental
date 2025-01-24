@@ -178,13 +178,14 @@ const Signup = () => {
                 I want to
               </label>
               <Select onValueChange={setUserType} required>
-                <SelectTrigger>
+                <SelectTrigger className="bg-background border-input">
                   <SelectValue placeholder="Select your primary interest" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background border-2 shadow-lg">
                   <SelectItem value="buyer">Buy Cars</SelectItem>
                   <SelectItem value="seller">Sell Cars</SelectItem>
                   <SelectItem value="both">Buy and Sell Cars</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
             </div>
