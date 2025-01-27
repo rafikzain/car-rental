@@ -44,10 +44,13 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
         if (brandsResponse.error) throw brandsResponse.error;
         if (usersResponse.error) throw usersResponse.error;
 
-        setBrands(brandsResponse.data || []);
-        setFilteredBrands(brandsResponse.data || []);
-        setUsers(usersResponse.data || []);
-        setFilteredUsers(usersResponse.data || []);
+        const brandsData = brandsResponse.data || [];
+        const usersData = usersResponse.data || [];
+
+        setBrands(brandsData);
+        setFilteredBrands(brandsData);
+        setUsers(usersData);
+        setFilteredUsers(usersData);
       } catch (err) {
         console.error('Error fetching data:', err);
         setError('Failed to load search data');
