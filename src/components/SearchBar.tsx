@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface SearchBarProps {
@@ -21,6 +24,8 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
   const [selectedUser, setSelectedUser] = useState<string>("all");
   const [brands, setBrands] = useState<{ id: number; name: string }[]>([]);
   const [users, setUsers] = useState<{ id: string; name: string }[]>([]);
+  const [openBrand, setOpenBrand] = useState(false);
+  const [openUser, setOpenUser] = useState(false);
 
   useEffect(() => {
     // Fetch brands
@@ -70,33 +75,117 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
         />
       </div>
       
-      <Select value={selectedBrand} onValueChange={setSelectedBrand}>
-        <SelectTrigger className="w-full md:w-[200px]">
-          <SelectValue placeholder="Select brand" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All brands</SelectItem>
-          {brands.map((brand) => (
-            <SelectItem key={brand.id} value={brand.name}>
-              {brand.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <Popover open={openBrand} onOpenChange={setOpenBrand}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={openBrand}
+            className="w-full md:w-[200px] justify-between bg-white"
+          >
+            {selectedBrand === "all" ? "All brands" : selectedBrand}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-full md:w-[200px] p-0 bg-white">
+          <Command>
+            <CommandInput placeholder="Search brand..." />
+            <CommandEmpty>No brand found.</CommandEmpty>
+            <CommandGroup>
+              <CommandItem
+                value="all"
+                onSelect={() => {
+                  setSelectedBrand("all");
+                  setOpenBrand(false);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    selectedBrand === "all" ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                All brands
+              </CommandItem>
+              {brands.map((brand) => (
+                <CommandItem
+                  key={brand.id}
+                  value={brand.name}
+                  onSelect={() => {
+                    setSelectedBrand(brand.name);
+                    setOpenBrand(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      selectedBrand === brand.name ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {brand.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
 
-      <Select value={selectedUser} onValueChange={setSelectedUser}>
-        <SelectTrigger className="w-full md:w-[200px]">
-          <SelectValue placeholder="Select seller" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All sellers</SelectItem>
-          {users.map((user) => (
-            <SelectItem key={user.id} value={user.id}>
-              {user.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <Popover open={openUser} onOpenChange={setOpenUser}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={openUser}
+            className="w-full md:w-[200px] justify-between bg-white"
+          >
+            {selectedUser === "all" 
+              ? "All sellers" 
+              : users.find(user => user.id === selectedUser)?.name || "All sellers"}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-full md:w-[200px] p-0 bg-white">
+          <Command>
+            <CommandInput placeholder="Search seller..." />
+            <CommandEmpty>No seller found.</CommandEmpty>
+            <CommandGroup>
+              <CommandItem
+                value="all"
+                onSelect={() => {
+                  setSelectedUser("all");
+                  setOpenUser(false);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    selectedUser === "all" ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                All sellers
+              </CommandItem>
+              {users.map((user) => (
+                <CommandItem
+                  key={user.id}
+                  value={user.name}
+                  onSelect={() => {
+                    setSelectedUser(user.id);
+                    setOpenUser(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      selectedUser === user.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {user.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
 
       <Button type="submit" variant="default">
         <Search className="h-4 w-4 mr-2" />
