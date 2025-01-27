@@ -72,6 +72,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
   };
 
   const handleBrandFilter = (value: string) => {
+    if (!brands) return;
     const filtered = brands.filter(brand => 
       brand.name.toLowerCase().includes(value.toLowerCase())
     );
@@ -79,6 +80,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
   };
 
   const handleUserFilter = (value: string) => {
+    if (!users) return;
     const filtered = users.filter(user => 
       user.name.toLowerCase().includes(value.toLowerCase())
     );
