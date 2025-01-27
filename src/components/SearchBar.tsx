@@ -71,10 +71,10 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
       </div>
       
       <Select value={selectedBrand} onValueChange={setSelectedBrand}>
-        <SelectTrigger className="w-full md:w-[200px]">
+        <SelectTrigger className="w-full md:w-[200px] bg-white">
           <SelectValue placeholder="Select brand" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white">
           <SelectItem value="all">All brands</SelectItem>
           {brands.map((brand) => (
             <SelectItem key={brand.id} value={brand.name}>
@@ -85,10 +85,10 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
       </Select>
 
       <Select value={selectedUser} onValueChange={setSelectedUser}>
-        <SelectTrigger className="w-full md:w-[200px]">
+        <SelectTrigger className="w-full md:w-[200px] bg-white">
           <SelectValue placeholder="Select seller" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white">
           <SelectItem value="all">All sellers</SelectItem>
           {users.map((user) => (
             <SelectItem key={user.id} value={user.id}>
