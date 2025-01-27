@@ -1,16 +1,20 @@
 import { useState } from "react";
 import Hero from "@/components/Hero";
 import CarCard from "@/components/CarCard";
-import SearchBar from "@/components/SearchBar";
+import SearchBar, { SearchFilters } from "@/components/SearchBar";
 import { Car } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState<SearchFilters>({
+    searchTerm: "",
+    brand: undefined,
+    userId: undefined,
+  });
 
   const { data: cars = [], isLoading } = useQuery({
-    queryKey: ["cars", searchTerm],
+    queryKey: ["cars", filters],
     queryFn: async () => {
       let query = supabase
         .from("cars")
@@ -21,12 +25,20 @@ const Index = () => {
           )
         `)
         .order('created_at', { ascending: false })
-        .limit(9); // Show up to 9 recent cars
+        .limit(9);
 
-      if (searchTerm) {
+      if (filters.searchTerm) {
         query = query.or(
-          `name.ilike.%${searchTerm}%,brand.ilike.%${searchTerm}%`
+          `name.ilike.%${filters.searchTerm}%,brand.ilike.%${filters.searchTerm}%`
         );
+      }
+
+      if (filters.brand) {
+        query = query.eq('brand', filters.brand);
+      }
+
+      if (filters.userId) {
+        query = query.eq('user_id', filters.userId);
       }
 
       const { data, error } = await query;
@@ -52,8 +64,8 @@ const Index = () => {
     },
   });
 
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
+  const handleSearch = (newFilters: SearchFilters) => {
+    setFilters(newFilters);
   };
 
   return (
@@ -70,7 +82,7 @@ const Index = () => {
         ) : (
           <>
             <h2 className="text-3xl font-bold text-gray-800 mb-8">
-              {searchTerm ? "Search Results" : "Recent Listings"}
+              {filters.searchTerm || filters.brand || filters.userId ? "Search Results" : "Recent Listings"}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {cars.map((car) => (
