@@ -28,6 +28,8 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
   const [openUser, setOpenUser] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filteredBrands, setFilteredBrands] = useState<{ id: number; name: string }[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,7 +45,9 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
         if (usersResponse.error) throw usersResponse.error;
 
         setBrands(brandsResponse.data || []);
+        setFilteredBrands(brandsResponse.data || []);
         setUsers(usersResponse.data || []);
+        setFilteredUsers(usersResponse.data || []);
       } catch (err) {
         console.error('Error fetching data:', err);
         setError('Failed to load search data');
@@ -62,6 +66,20 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
       brand: selectedBrand === "all" ? undefined : selectedBrand,
       userId: selectedUser === "all" ? undefined : selectedUser,
     });
+  };
+
+  const handleBrandFilter = (value: string) => {
+    const filtered = brands.filter(brand => 
+      brand.name.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredBrands(filtered);
+  };
+
+  const handleUserFilter = (value: string) => {
+    const filtered = users.filter(user => 
+      user.name.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredUsers(filtered);
   };
 
   if (isLoading) {
@@ -107,7 +125,10 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
           </PopoverTrigger>
           <PopoverContent className="w-full md:w-[200px] p-0 bg-white">
             <Command>
-              <CommandInput placeholder="Search brand..." />
+              <CommandInput 
+                placeholder="Search brand..." 
+                onValueChange={handleBrandFilter}
+              />
               <CommandEmpty>No brand found.</CommandEmpty>
               <CommandGroup>
                 <CommandItem
@@ -125,7 +146,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                   />
                   All brands
                 </CommandItem>
-                {brands.map((brand) => (
+                {filteredBrands.map((brand) => (
                   <CommandItem
                     key={brand.id}
                     value={brand.name}
@@ -166,7 +187,10 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
           </PopoverTrigger>
           <PopoverContent className="w-full md:w-[200px] p-0 bg-white">
             <Command>
-              <CommandInput placeholder="Search seller..." />
+              <CommandInput 
+                placeholder="Search seller..."
+                onValueChange={handleUserFilter}
+              />
               <CommandEmpty>No seller found.</CommandEmpty>
               <CommandGroup>
                 <CommandItem
@@ -184,7 +208,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                   />
                   All sellers
                 </CommandItem>
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                   <CommandItem
                     key={user.id}
                     value={user.name}
