@@ -17,8 +17,8 @@ export interface SearchFilters {
 
 const SearchBar = ({ onSearch }: SearchBarProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedBrand, setSelectedBrand] = useState<string>("");
-  const [selectedUser, setSelectedUser] = useState<string>("");
+  const [selectedBrand, setSelectedBrand] = useState<string>("all");
+  const [selectedUser, setSelectedUser] = useState<string>("all");
   const [brands, setBrands] = useState<{ id: number; name: string }[]>([]);
   const [users, setUsers] = useState<{ id: string; name: string }[]>([]);
 
@@ -53,8 +53,8 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
     e.preventDefault();
     onSearch({
       searchTerm,
-      brand: selectedBrand || undefined,
-      userId: selectedUser || undefined,
+      brand: selectedBrand === "all" ? undefined : selectedBrand,
+      userId: selectedUser === "all" ? undefined : selectedUser,
     });
   };
 
@@ -75,7 +75,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
           <SelectValue placeholder="Select brand" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">All brands</SelectItem>
+          <SelectItem value="all">All brands</SelectItem>
           {brands.map((brand) => (
             <SelectItem key={brand.id} value={brand.name}>
               {brand.name}
@@ -89,7 +89,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
           <SelectValue placeholder="Select seller" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">All sellers</SelectItem>
+          <SelectItem value="all">All sellers</SelectItem>
           {users.map((user) => (
             <SelectItem key={user.id} value={user.id}>
               {user.name}
