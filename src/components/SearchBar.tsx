@@ -26,32 +26,39 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
   const [users, setUsers] = useState<{ id: string; name: string }[]>([]);
   const [openBrand, setOpenBrand] = useState(false);
   const [openUser, setOpenUser] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch brands
-    const fetchBrands = async () => {
-      const { data, error } = await supabase
-        .from('car_brands')
-        .select('*')
-        .order('name');
-      if (!error && data) {
-        setBrands(data);
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch brands
+        const { data: brandsData, error: brandsError } = await supabase
+          .from('car_brands')
+          .select('*')
+          .order('name');
+        
+        if (!brandsError && brandsData) {
+          setBrands(brandsData);
+        }
+
+        // Fetch users (sellers)
+        const { data: usersData, error: usersError } = await supabase
+          .from('profiles')
+          .select('id, name')
+          .order('name');
+        
+        if (!usersError && usersData) {
+          setUsers(usersData);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    // Fetch users (sellers)
-    const fetchUsers = async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, name')
-        .order('name');
-      if (!error && data) {
-        setUsers(data);
-      }
-    };
-
-    fetchBrands();
-    fetchUsers();
+    fetchData();
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -62,6 +69,14 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
       userId: selectedUser === "all" ? undefined : selectedUser,
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-24">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col md:flex-row w-full max-w-4xl gap-4">
