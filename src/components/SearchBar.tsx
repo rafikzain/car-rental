@@ -31,6 +31,8 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
       try {
         const [brandsResponse, usersResponse] = await Promise.all([
           supabase.from('car_brands').select('*').order('name'),
@@ -90,7 +92,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
         />
       </div>
       
-      {brands.length > 0 && (
+      {brands && brands.length > 0 && (
         <Popover open={openBrand} onOpenChange={setOpenBrand}>
           <PopoverTrigger asChild>
             <Button
@@ -147,7 +149,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
         </Popover>
       )}
 
-      {users.length > 0 && (
+      {users && users.length > 0 && (
         <Popover open={openUser} onOpenChange={setOpenUser}>
           <PopoverTrigger asChild>
             <Button
