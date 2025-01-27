@@ -85,6 +85,16 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
     setFilteredUsers(filtered);
   };
 
+  const handleBrandSelect = (value: string) => {
+    setSelectedBrand(value);
+    setOpenBrand(false);
+  };
+
+  const handleUserSelect = (value: string) => {
+    setSelectedUser(value);
+    setOpenUser(false);
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-24">
@@ -117,6 +127,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
         <Popover open={openBrand} onOpenChange={setOpenBrand}>
           <PopoverTrigger asChild>
             <Button
+              type="button"
               variant="outline"
               role="combobox"
               aria-expanded={openBrand}
@@ -136,10 +147,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
               <CommandGroup>
                 <CommandItem
                   value="all"
-                  onSelect={() => {
-                    setSelectedBrand("all");
-                    setOpenBrand(false);
-                  }}
+                  onSelect={() => handleBrandSelect("all")}
                 >
                   <Check
                     className={cn(
@@ -153,10 +161,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                   <CommandItem
                     key={brand.id}
                     value={brand.name}
-                    onSelect={() => {
-                      setSelectedBrand(brand.name);
-                      setOpenBrand(false);
-                    }}
+                    onSelect={() => handleBrandSelect(brand.name)}
                   >
                     <Check
                       className={cn(
@@ -177,6 +182,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
         <Popover open={openUser} onOpenChange={setOpenUser}>
           <PopoverTrigger asChild>
             <Button
+              type="button"
               variant="outline"
               role="combobox"
               aria-expanded={openUser}
@@ -198,10 +204,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
               <CommandGroup>
                 <CommandItem
                   value="all"
-                  onSelect={() => {
-                    setSelectedUser("all");
-                    setOpenUser(false);
-                  }}
+                  onSelect={() => handleUserSelect("all")}
                 >
                   <Check
                     className={cn(
@@ -215,10 +218,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                   <CommandItem
                     key={user.id}
                     value={user.name}
-                    onSelect={() => {
-                      setSelectedUser(user.id);
-                      setOpenUser(false);
-                    }}
+                    onSelect={() => handleUserSelect(user.id)}
                   >
                     <Check
                       className={cn(
