@@ -92,117 +92,121 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
         />
       </div>
       
-      <Popover open={openBrand} onOpenChange={setOpenBrand}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={openBrand}
-            className="w-full md:w-[200px] justify-between bg-white"
-          >
-            {selectedBrand === "all" ? "All brands" : selectedBrand}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-full md:w-[200px] p-0 bg-white">
-          <Command>
-            <CommandInput placeholder="Search brand..." />
-            <CommandEmpty>No brand found.</CommandEmpty>
-            <CommandGroup>
-              <CommandItem
-                value="all"
-                onSelect={() => {
-                  setSelectedBrand("all");
-                  setOpenBrand(false);
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    selectedBrand === "all" ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                All brands
-              </CommandItem>
-              {brands.map((brand) => (
+      {brands && brands.length > 0 && (
+        <Popover open={openBrand} onOpenChange={setOpenBrand}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={openBrand}
+              className="w-full md:w-[200px] justify-between bg-white"
+            >
+              {selectedBrand === "all" ? "All brands" : selectedBrand}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-full md:w-[200px] p-0 bg-white">
+            <Command>
+              <CommandInput placeholder="Search brand..." />
+              <CommandEmpty>No brand found.</CommandEmpty>
+              <CommandGroup>
                 <CommandItem
-                  key={brand.id}
-                  value={brand.name}
+                  value="all"
                   onSelect={() => {
-                    setSelectedBrand(brand.name);
+                    setSelectedBrand("all");
                     setOpenBrand(false);
                   }}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      selectedBrand === brand.name ? "opacity-100" : "opacity-0"
+                      selectedBrand === "all" ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {brand.name}
+                  All brands
                 </CommandItem>
-              ))}
-            </CommandGroup>
-          </Command>
-        </PopoverContent>
-      </Popover>
+                {brands.map((brand) => (
+                  <CommandItem
+                    key={brand.id}
+                    value={brand.name}
+                    onSelect={() => {
+                      setSelectedBrand(brand.name);
+                      setOpenBrand(false);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        selectedBrand === brand.name ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {brand.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      )}
 
-      <Popover open={openUser} onOpenChange={setOpenUser}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={openUser}
-            className="w-full md:w-[200px] justify-between bg-white"
-          >
-            {selectedUser === "all" 
-              ? "All sellers" 
-              : users.find(user => user.id === selectedUser)?.name || "All sellers"}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-full md:w-[200px] p-0 bg-white">
-          <Command>
-            <CommandInput placeholder="Search seller..." />
-            <CommandEmpty>No seller found.</CommandEmpty>
-            <CommandGroup>
-              <CommandItem
-                value="all"
-                onSelect={() => {
-                  setSelectedUser("all");
-                  setOpenUser(false);
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    selectedUser === "all" ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                All sellers
-              </CommandItem>
-              {users.map((user) => (
+      {users && users.length > 0 && (
+        <Popover open={openUser} onOpenChange={setOpenUser}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={openUser}
+              className="w-full md:w-[200px] justify-between bg-white"
+            >
+              {selectedUser === "all" 
+                ? "All sellers" 
+                : users.find(user => user.id === selectedUser)?.name || "All sellers"}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-full md:w-[200px] p-0 bg-white">
+            <Command>
+              <CommandInput placeholder="Search seller..." />
+              <CommandEmpty>No seller found.</CommandEmpty>
+              <CommandGroup>
                 <CommandItem
-                  key={user.id}
-                  value={user.name}
+                  value="all"
                   onSelect={() => {
-                    setSelectedUser(user.id);
+                    setSelectedUser("all");
                     setOpenUser(false);
                   }}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      selectedUser === user.id ? "opacity-100" : "opacity-0"
+                      selectedUser === "all" ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {user.name}
+                  All sellers
                 </CommandItem>
-              ))}
-            </CommandGroup>
-          </Command>
-        </PopoverContent>
-      </Popover>
+                {users.map((user) => (
+                  <CommandItem
+                    key={user.id}
+                    value={user.name}
+                    onSelect={() => {
+                      setSelectedUser(user.id);
+                      setOpenUser(false);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        selectedUser === user.id ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {user.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      )}
 
       <Button type="submit" variant="default">
         <Search className="h-4 w-4 mr-2" />
