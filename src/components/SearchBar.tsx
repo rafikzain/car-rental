@@ -27,32 +27,26 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
   const [openBrand, setOpenBrand] = useState(false);
   const [openUser, setOpenUser] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
+      setError(null);
       try {
-        // Fetch brands
-        const { data: brandsData, error: brandsError } = await supabase
-          .from('car_brands')
-          .select('*')
-          .order('name');
-        
-        if (!brandsError && brandsData) {
-          setBrands(brandsData);
-        }
+        const [brandsResponse, usersResponse] = await Promise.all([
+          supabase.from('car_brands').select('*').order('name'),
+          supabase.from('profiles').select('id, name').order('name')
+        ]);
 
-        // Fetch users (sellers)
-        const { data: usersData, error: usersError } = await supabase
-          .from('profiles')
-          .select('id, name')
-          .order('name');
-        
-        if (!usersError && usersData) {
-          setUsers(usersData);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
+        if (brandsResponse.error) throw brandsResponse.error;
+        if (usersResponse.error) throw usersResponse.error;
+
+        setBrands(brandsResponse.data || []);
+        setUsers(usersResponse.data || []);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to load search data');
       } finally {
         setIsLoading(false);
       }
@@ -74,6 +68,14 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
     return (
       <div className="flex justify-center items-center h-24">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-500 py-4">
+        {error}
       </div>
     );
   }
