@@ -29,6 +29,13 @@ const Hero = () => {
     Autoplay({ delay: 5000, stopOnInteraction: true })
   );
 
+  const scrollToListings = () => {
+    window.scrollTo({
+      top: window.innerHeight,
+      behavior: 'smooth'
+    });
+  };
+
   return (
     <div className="relative min-h-[80vh] overflow-hidden bg-gray-900">
       <Carousel 
@@ -57,17 +64,17 @@ const Hero = () => {
                   </p>
                   <div className="space-x-4">
                     <Link
-                      to="/cars"
+                      to="/sellers"
                       className="bg-primary text-white px-8 py-3 rounded-lg hover:bg-primary/90 transition-colors"
                     >
-                      Browse Cars
+                      Browse Sellers
                     </Link>
-                    <Link
-                      to="/about"
+                    <button
+                      onClick={scrollToListings}
                       className="bg-white text-primary px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors"
                     >
-                      Learn More
-                    </Link>
+                      Browse Cars
+                    </button>
                   </div>
                 </div>
               </div>
