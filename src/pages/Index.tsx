@@ -11,6 +11,7 @@ const Index = () => {
     searchTerm: "",
     brand: undefined,
     userId: undefined,
+    type: undefined,
   });
 
   const { data: cars = [], isLoading } = useQuery({
@@ -39,6 +40,10 @@ const Index = () => {
 
       if (filters.userId) {
         query = query.eq('user_id', filters.userId);
+      }
+
+      if (filters.type) {
+        query = query.eq('type', filters.type);
       }
 
       const { data, error } = await query;
@@ -82,7 +87,7 @@ const Index = () => {
         ) : (
           <>
             <h2 className="text-3xl font-bold text-gray-800 mb-8">
-              {filters.searchTerm || filters.brand || filters.userId ? "Search Results" : "Recent Listings"}
+              {filters.searchTerm || filters.brand || filters.userId || filters.type ? "Search Results" : "Recent Listings"}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {cars.map((car) => (

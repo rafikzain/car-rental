@@ -13,12 +13,14 @@ export interface SearchFilters {
   searchTerm: string;
   brand?: string;
   userId?: string;
+  type?: "rent" | "sale";
 }
 
 const SearchBar = ({ onSearch }: SearchBarProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBrand, setSelectedBrand] = useState<string>("all");
   const [selectedUser, setSelectedUser] = useState<string>("all");
+  const [selectedType, setSelectedType] = useState<string>("all");
   const [brands, setBrands] = useState<{ id: number; name: string }[]>([]);
   const [users, setUsers] = useState<{ id: string; name: string }[]>([]);
 
@@ -55,6 +57,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
       searchTerm,
       brand: selectedBrand === "all" ? undefined : selectedBrand,
       userId: selectedUser === "all" ? undefined : selectedUser,
+      type: selectedType === "all" ? undefined : selectedType as "rent" | "sale",
     });
   };
 
@@ -95,6 +98,17 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
               {user.name}
             </SelectItem>
           ))}
+        </SelectContent>
+      </Select>
+
+      <Select value={selectedType} onValueChange={setSelectedType}>
+        <SelectTrigger className="w-full md:w-[200px] bg-white">
+          <SelectValue placeholder="Select type" />
+        </SelectTrigger>
+        <SelectContent className="bg-white">
+          <SelectItem value="all">All types</SelectItem>
+          <SelectItem value="rent">For Rent</SelectItem>
+          <SelectItem value="sale">For Sale</SelectItem>
         </SelectContent>
       </Select>
 
