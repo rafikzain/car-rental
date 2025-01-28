@@ -3,10 +3,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { Check, ChevronsUpDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface SearchBarProps {
@@ -25,7 +21,6 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
   const [selectedUser, setSelectedUser] = useState<string>("all");
   const [brands, setBrands] = useState<{ id: number; name: string }[]>([]);
   const [users, setUsers] = useState<{ id: string; name: string }[]>([]);
-  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     // Fetch brands
@@ -75,58 +70,19 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
         />
       </div>
       
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full md:w-[200px] bg-white justify-between"
-          >
-            {selectedBrand === "all" ? "All brands" : selectedBrand}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-full md:w-[200px] p-0 bg-white">
-          <Command>
-            <CommandInput placeholder="Search brands..." />
-            <CommandEmpty>No brand found.</CommandEmpty>
-            <CommandGroup>
-              <CommandItem
-                onSelect={() => {
-                  setSelectedBrand("all");
-                  setOpen(false);
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    selectedBrand === "all" ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                All brands
-              </CommandItem>
-              {brands.map((brand) => (
-                <CommandItem
-                  key={brand.id}
-                  onSelect={() => {
-                    setSelectedBrand(brand.name);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      selectedBrand === brand.name ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {brand.name}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </Command>
-        </PopoverContent>
-      </Popover>
+      <Select value={selectedBrand} onValueChange={setSelectedBrand}>
+        <SelectTrigger className="w-full md:w-[200px] bg-white">
+          <SelectValue placeholder="Select brand" />
+        </SelectTrigger>
+        <SelectContent className="bg-white">
+          <SelectItem value="all">All brands</SelectItem>
+          {brands.map((brand) => (
+            <SelectItem key={brand.id} value={brand.name}>
+              {brand.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       <Select value={selectedUser} onValueChange={setSelectedUser}>
         <SelectTrigger className="w-full md:w-[200px] bg-white">
