@@ -51,8 +51,12 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
     fetchUsers();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // New useEffect to trigger search when filters change
+  useEffect(() => {
+    handleSearch();
+  }, [searchTerm, selectedBrand, selectedUser, selectedType]);
+
+  const handleSearch = () => {
     onSearch({
       searchTerm,
       brand: selectedBrand === "all" ? undefined : selectedBrand,
@@ -62,7 +66,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col md:flex-row w-full max-w-6xl gap-4">
+    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col md:flex-row w-full max-w-6xl gap-4">
       <div className="relative flex-1">
         <Input
           type="text"
@@ -112,7 +116,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
         </SelectContent>
       </Select>
 
-      <Button type="submit" variant="default">
+      <Button type="button" variant="default" onClick={handleSearch}>
         <Search className="h-4 w-4 mr-2" />
         Search
       </Button>
