@@ -10,6 +10,8 @@ import CarDetails from "@/pages/CarDetails";
 import Admin from "@/pages/Admin";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
+import Sellers from "@/pages/Sellers";
+import Profile from "@/pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +27,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/cars" element={<Cars />} />
             <Route path="/cars/:id" element={<CarDetails />} />
+            <Route path="/sellers" element={<Sellers />} />
+            <Route path="/profile/:id" element={<Profile />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
