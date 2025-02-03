@@ -7,13 +7,27 @@ import { Loader2, MapPin, Phone, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const fetchSellers = async () => {
-  const { data, error } = await supabase
+  const { data: profiles, error } = await supabase
     .from("profiles")
     .select("*")
     .in("user_type", ["seller", "both"]);
 
   if (error) throw error;
-  return data as User[];
+
+  // Map the Supabase response to our User type
+  const sellers: User[] = profiles.map(profile => ({
+    id: profile.id,
+    email: "", // Email is not available from profiles table
+    name: profile.name,
+    userType: profile.user_type as "buyer" | "seller" | "both" | "admin",
+    phoneNumber: profile.phone_number || undefined,
+    location: profile.location || undefined,
+    isBanned: profile.is_banned || false,
+    isScammer: profile.is_scammer || false,
+    createdAt: new Date(profile.created_at)
+  }));
+
+  return sellers;
 };
 
 export default function Sellers() {
