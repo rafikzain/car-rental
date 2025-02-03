@@ -3,15 +3,41 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { useForm } from "react-hook-form";
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UserInfoProps {
   user: User;
 }
 
+interface ReportFormData {
+  description: string;
+  carId?: number;
+}
+
 export default function UserInfo({ user }: UserInfoProps) {
   const { toast } = useToast();
+  const { id } = useParams();
+  const form = useForm<ReportFormData>();
 
-  const handleReport = async () => {
+  // Fetch cars listed by this user
+  const { data: userCars } = useQuery({
+    queryKey: ["userCars", id],
+    queryFn: async () => {
+      const { data: cars } = await supabase
+        .from("cars")
+        .select("*")
+        .eq("user_id", id);
+      return cars;
+    },
+  });
+
+  const handleReport = async (data: ReportFormData) => {
+    // Here you would typically send the report to your backend
     toast({
       title: "User Reported",
       description: "Thank you for your report. We will review it shortly.",
@@ -27,17 +53,67 @@ export default function UserInfo({ user }: UserInfoProps) {
             <AlertDialogTrigger asChild>
               <Button variant="destructive">Report User</Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Report User</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to report this user? This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleReport}>Report</AlertDialogAction>
-              </AlertDialogFooter>
+            <AlertDialogContent className="sm:max-w-[425px]">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleReport)}>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Report User</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Please provide details about why you are reporting this user.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+
+                  <div className="grid gap-4 py-4">
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Please describe the issue..."
+                              className="min-h-[100px]"
+                              {...field}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    {userCars && userCars.length > 0 && (
+                      <FormField
+                        control={form.control}
+                        name="carId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Related Car Listing</FormLabel>
+                            <FormControl>
+                              <select
+                                className="w-full p-2 border rounded-md"
+                                {...field}
+                                onChange={(e) => field.onChange(Number(e.target.value))}
+                              >
+                                <option value="">Select a car listing</option>
+                                {userCars.map((car) => (
+                                  <option key={car.id} value={car.id}>
+                                    {car.brand} {car.name} - ${car.price}
+                                  </option>
+                                ))}
+                              </select>
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                  </div>
+
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction type="submit">Submit Report</AlertDialogAction>
+                  </AlertDialogFooter>
+                </form>
+              </Form>
             </AlertDialogContent>
           </AlertDialog>
         </CardTitle>
