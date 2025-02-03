@@ -7,11 +7,6 @@ import UserInfo from "@/components/profile/UserInfo";
 import UserTransactions from "@/components/profile/UserTransactions";
 import UserSearch from "@/components/profile/UserSearch";
 
-type AuthUser = {
-  id: string;
-  email?: string;
-};
-
 export default function Profile() {
   const { id } = useParams();
   const { toast } = useToast();
@@ -25,24 +20,23 @@ export default function Profile() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const { data: profile } = await supabase
+        // Fetch profile data
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', id)
           .single();
 
-        if (profile) {
-          const { data: { users } } = await supabase.auth.admin.listUsers();
-          const authUsers = users as unknown as AuthUser[];
-          const authUser = authUsers.find(u => u.id === profile.id);
+        if (profileError) throw profileError;
 
+        if (profile) {
           setUser({
             id: profile.id,
-            email: authUser?.email || "",
+            email: "", // We don't have access to email without admin privileges
             name: profile.name,
-            userType: profile.user_type as "buyer" | "seller" | "both" | "admin",
-            phoneNumber: profile.phone_number || null,
-            location: profile.location || null,
+            userType: profile.user_type,
+            phoneNumber: profile.phone_number || undefined,
+            location: profile.location || undefined,
             isBanned: profile.is_banned || false,
             isScammer: profile.is_scammer || false,
             createdAt: new Date(profile.created_at)
@@ -74,13 +68,17 @@ export default function Profile() {
             .eq('type', 'rent');
 
           const mapTransactionToCar = (t: any): Car => ({
-            ...t.cars,
+            id: t.cars.id,
+            name: t.cars.name,
+            brand: t.cars.brand,
             type: t.cars.type === "sale" ? "sale" : "rent",
+            price: t.cars.price,
+            description: t.cars.description,
             createdAt: new Date(t.cars.created_at),
             userId: t.cars.user_id,
             featured: t.cars.featured || false,
-            location: t.cars.location || null,
-            phoneNumber: t.cars.phone_number || null
+            location: t.cars.location || undefined,
+            phoneNumber: t.cars.phone_number || undefined
           });
 
           setSoldCars(soldTransactions?.map(mapTransactionToCar) || []);

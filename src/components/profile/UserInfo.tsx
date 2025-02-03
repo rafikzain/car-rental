@@ -28,20 +28,36 @@ export default function UserInfo({ user }: UserInfoProps) {
   const { data: userCars } = useQuery({
     queryKey: ["userCars", id],
     queryFn: async () => {
-      const { data: cars } = await supabase
+      const { data: cars, error } = await supabase
         .from("cars")
         .select("*")
         .eq("user_id", id);
+
+      if (error) throw error;
       return cars;
     },
   });
 
   const handleReport = async (data: ReportFormData) => {
-    // Here you would typically send the report to your backend
-    toast({
-      title: "User Reported",
-      description: "Thank you for your report. We will review it shortly.",
-    });
+    try {
+      // Here you would typically send the report to your backend
+      toast({
+        title: "User Reported",
+        description: "Thank you for your report. We will review it shortly.",
+      });
+      
+      // Close the dialog by simulating a click on the cancel button
+      const cancelButton = document.querySelector('[data-button-type="cancel"]') as HTMLButtonElement;
+      if (cancelButton) {
+        cancelButton.click();
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit report. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -109,7 +125,7 @@ export default function UserInfo({ user }: UserInfoProps) {
                   </div>
 
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel data-button-type="cancel">Cancel</AlertDialogCancel>
                     <AlertDialogAction type="submit">Submit Report</AlertDialogAction>
                   </AlertDialogFooter>
                 </form>
