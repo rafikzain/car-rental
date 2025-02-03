@@ -30,11 +30,17 @@ export default function Profile() {
         if (profileError) throw profileError;
 
         if (profile) {
+          // Validate user_type before setting it
+          const userType = profile.user_type as "buyer" | "seller" | "both" | "admin";
+          if (!["buyer", "seller", "both", "admin"].includes(userType)) {
+            throw new Error("Invalid user type");
+          }
+
           setUser({
             id: profile.id,
             email: "", // We don't have access to email without admin privileges
             name: profile.name,
-            userType: profile.user_type,
+            userType: userType,
             phoneNumber: profile.phone_number || undefined,
             location: profile.location || undefined,
             isBanned: profile.is_banned || false,
