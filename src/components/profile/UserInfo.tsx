@@ -1,3 +1,4 @@
+
 import { User } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useParams } from "react-router-dom";
@@ -28,8 +29,16 @@ export default function UserInfo({ user }: UserInfoProps) {
     },
   });
 
-  const currentUser = supabase.auth.getUser();
-  const isOwnProfile = currentUser?.data?.user?.id === id;
+  // Use useQuery to get the current user
+  const { data: currentUserResponse } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: async () => {
+      const { data } = await supabase.auth.getUser();
+      return data;
+    },
+  });
+
+  const isOwnProfile = currentUserResponse?.user?.id === id;
 
   return (
     <Card className="mb-6">
