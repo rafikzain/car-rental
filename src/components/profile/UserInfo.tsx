@@ -7,8 +7,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Upload } from "lucide-react";
+import { useCallback } from "react";
 
 interface UserInfoProps {
   user: User;
@@ -23,6 +26,7 @@ export default function UserInfo({ user }: UserInfoProps) {
   const { toast } = useToast();
   const { id } = useParams();
   const form = useForm<ReportFormData>();
+  const queryClient = useQueryClient();
 
   // Fetch cars listed by this user
   const { data: userCars } = useQuery({
@@ -40,13 +44,11 @@ export default function UserInfo({ user }: UserInfoProps) {
 
   const handleReport = async (data: ReportFormData) => {
     try {
-      // Here you would typically send the report to your backend
       toast({
         title: "User Reported",
         description: "Thank you for your report. We will review it shortly.",
       });
       
-      // Close the dialog by simulating a click on the cancel button
       const cancelButton = document.querySelector('[data-button-type="cancel"]') as HTMLButtonElement;
       if (cancelButton) {
         cancelButton.click();
@@ -60,11 +62,81 @@ export default function UserInfo({ user }: UserInfoProps) {
     }
   };
 
+  const handleImageUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      // Upload image to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${id}/${crypto.randomUUID()}.${fileExt}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('profile_pictures')
+        .upload(fileName, file, {
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('profile_pictures')
+        .getPublicUrl(fileName);
+
+      // Update profile with new avatar URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', id);
+
+      if (updateError) throw updateError;
+
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['profile', id] });
+
+      toast({
+        title: "Success",
+        description: "Profile picture updated successfully",
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload profile picture. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [id, toast, queryClient]);
+
   return (
     <Card className="mb-6">
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
-          <span>{user.name}'s Profile</span>
+          <div className="flex items-center gap-4">
+            <div className="relative group">
+              <Avatar className="h-20 w-20">
+                <AvatarImage src={user.avatarUrl} alt={user.name} />
+                <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              {id === supabase.auth.user()?.id && (
+                <label 
+                  className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 rounded-full cursor-pointer transition-opacity"
+                  htmlFor="avatar-upload"
+                >
+                  <Upload className="h-6 w-6 text-white" />
+                  <input
+                    type="file"
+                    id="avatar-upload"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                  />
+                </label>
+              )}
+            </div>
+            <span>{user.name}'s Profile</span>
+          </div>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive">Report User</Button>

@@ -4,9 +4,9 @@ export interface Car {
   brand: string;
   type: "rent" | "sale";
   price: number;
-  image?: string; // Made optional since it's not in DB
+  image?: string;
   description: string;
-  specs?: { // Made optional since it's not in DB
+  specs?: {
     engine: string;
     power: string;
     acceleration: string;
@@ -29,6 +29,7 @@ export interface User {
   location?: string;
   isBanned?: boolean;
   isScammer?: boolean;
+  avatarUrl?: string;
   createdAt: Date;
 }
 
