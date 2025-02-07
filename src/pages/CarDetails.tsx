@@ -14,6 +14,13 @@ const CarDetails = () => {
   const { data: car, isLoading } = useQuery({
     queryKey: ["car", id],
     queryFn: async () => {
+      // Convert string id to number
+      const numericId = parseInt(id!, 10);
+      
+      if (isNaN(numericId)) {
+        throw new Error("Invalid car ID");
+      }
+
       const { data, error } = await supabase
         .from("cars")
         .select(`
@@ -22,7 +29,7 @@ const CarDetails = () => {
             image_url
           )
         `)
-        .eq("id", id)
+        .eq("id", numericId)
         .single();
 
       if (error) {
@@ -45,13 +52,7 @@ const CarDetails = () => {
         location: data.location,
         phoneNumber: data.phone_number,
         featured: data.featured,
-        createdAt: new Date(data.created_at),
-        specs: {
-          engine: "Information not available",
-          power: "Information not available",
-          acceleration: "Information not available",
-          transmission: "Information not available",
-        }
+        createdAt: new Date(data.created_at)
       } as Car;
     },
   });
