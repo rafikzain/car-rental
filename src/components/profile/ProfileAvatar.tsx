@@ -1,3 +1,4 @@
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Upload } from "lucide-react";
 import { useCallback } from "react";
@@ -63,7 +64,7 @@ export default function ProfileAvatar({ avatarUrl, name, userId, isOwnProfile }:
     <div className="relative group">
       <Avatar className="h-20 w-20">
         <AvatarImage src={avatarUrl} alt={name} />
-        <AvatarFallback>{name.charAt(0).toUpperCase()}</AvatarFallback>
+        <AvatarFallback className="bg-[#D3E4FD]">{name.charAt(0).toUpperCase()}</AvatarFallback>
       </Avatar>
       {isOwnProfile && (
         <label 
