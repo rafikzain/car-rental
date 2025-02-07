@@ -54,10 +54,10 @@ const CarDetails = () => {
         featured: data.featured,
         createdAt: new Date(data.created_at),
         specs: {
-          engine: "Information not available",
-          power: "Information not available",
-          acceleration: "Information not available",
-          transmission: "Information not available",
+          engine: data.engine || "Information not available",
+          power: data.power || "Information not available",
+          acceleration: data.acceleration || "Information not available",
+          transmission: data.transmission || "Information not available",
         }
       } as Car;
     },
@@ -127,6 +127,29 @@ const CarDetails = () => {
               </span>
             </h2>
             <p className="mt-4 text-gray-600">{car.description}</p>
+          </div>
+
+          {/* Car Specifications */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-lg font-semibold mb-4">Car Specifications</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500">Engine</p>
+                <p className="text-gray-700">{car.specs.engine}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500">Power</p>
+                <p className="text-gray-700">{car.specs.power}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500">Acceleration</p>
+                <p className="text-gray-700">{car.specs.acceleration}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500">Transmission</p>
+                <p className="text-gray-700">{car.specs.transmission}</p>
+              </div>
+            </div>
           </div>
 
           {/* Additional Information */}

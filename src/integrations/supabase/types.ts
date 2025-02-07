@@ -58,41 +58,53 @@ export type Database = {
       }
       cars: {
         Row: {
+          acceleration: string | null
           brand: string
           created_at: string
           description: string
+          engine: string | null
           featured: boolean | null
           id: number
           location: string | null
           name: string
           phone_number: string | null
+          power: string | null
           price: number
+          transmission: string | null
           type: string
           user_id: string | null
         }
         Insert: {
+          acceleration?: string | null
           brand: string
           created_at?: string
           description: string
+          engine?: string | null
           featured?: boolean | null
           id?: number
           location?: string | null
           name: string
           phone_number?: string | null
+          power?: string | null
           price: number
+          transmission?: string | null
           type: string
           user_id?: string | null
         }
         Update: {
+          acceleration?: string | null
           brand?: string
           created_at?: string
           description?: string
+          engine?: string | null
           featured?: boolean | null
           id?: number
           location?: string | null
           name?: string
           phone_number?: string | null
+          power?: string | null
           price?: number
+          transmission?: string | null
           type?: string
           user_id?: string | null
         }
