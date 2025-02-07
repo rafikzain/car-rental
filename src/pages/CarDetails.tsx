@@ -52,7 +52,13 @@ const CarDetails = () => {
         location: data.location,
         phoneNumber: data.phone_number,
         featured: data.featured,
-        createdAt: new Date(data.created_at)
+        createdAt: new Date(data.created_at),
+        specs: {
+          engine: "Information not available",
+          power: "Information not available",
+          acceleration: "Information not available",
+          transmission: "Information not available",
+        }
       } as Car;
     },
   });
