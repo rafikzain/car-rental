@@ -1,7 +1,12 @@
 
-// @deno-types="npm:@types/node"
+import { serve, createClient } from "./deps.ts";
 
-Deno.serve(async (req) => {
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -17,7 +22,7 @@ Deno.serve(async (req) => {
       throw new Error('Missing Supabase configuration');
     }
 
-    const supabaseClient = await createClient(supabaseUrl, supabaseAnonKey);
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 
     // Generate a unique order ID
     const orderId = `ORDER-${Date.now()}-${Math.random().toString(36).substring(7)}`
@@ -76,18 +81,3 @@ Deno.serve(async (req) => {
     )
   }
 });
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-// Types for Deno namespace
-declare const Deno: {
-  env: {
-    get(key: string): string | undefined;
-  };
-  serve(handler: (req: Request) => Promise<Response>): void;
-};
-
-declare const createClient: (url: string, key: string) => Promise<any>;
