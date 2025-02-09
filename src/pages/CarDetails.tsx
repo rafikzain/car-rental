@@ -1,5 +1,5 @@
 
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Car } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 const CarDetails = () => {
   const { id } = useParams();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const { data: car, isLoading } = useQuery({
     queryKey: ["car", id],
@@ -63,6 +64,41 @@ const CarDetails = () => {
     },
   });
 
+  const handleBuy = async () => {
+    if (!car) return;
+
+    try {
+      const { data, error } = await supabase.functions.invoke('initialize-cmi-payment', {
+        body: {
+          carId: car.id,
+          amount: car.price,
+          carName: car.name
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.redirectUrl) {
+        // Redirect to CMI payment page
+        window.location.href = data.redirectUrl;
+      }
+    } catch (error) {
+      console.error('Payment initialization failed:', error);
+      toast({
+        title: "Payment Error",
+        description: "Failed to initialize payment. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleContact = () => {
+    toast({
+      title: "Contact request sent",
+      description: "The seller will contact you soon.",
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-6 py-16 flex justify-center items-center">
@@ -81,13 +117,6 @@ const CarDetails = () => {
       </div>
     );
   }
-
-  const handleContact = () => {
-    toast({
-      title: "Contact request sent",
-      description: "The seller will contact you soon.",
-    });
-  };
 
   return (
     <div className="container mx-auto px-6 py-8">
@@ -184,11 +213,20 @@ const CarDetails = () => {
             </div>
           </div>
 
-          {/* Contact Section */}
+          {/* Action Buttons */}
           <div className="space-y-4">
+            {car.type === 'sale' && (
+              <Button
+                onClick={handleBuy}
+                className="w-full py-6 text-lg bg-green-600 hover:bg-green-700"
+              >
+                Buy Now - ${car.price.toLocaleString()}
+              </Button>
+            )}
             <Button
               onClick={handleContact}
               className="w-full py-6 text-lg"
+              variant={car.type === 'sale' ? 'outline' : 'default'}
             >
               Contact Seller
             </Button>

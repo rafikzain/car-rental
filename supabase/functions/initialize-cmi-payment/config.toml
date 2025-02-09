@@ -1,0 +1,3 @@
+
+[functions.initialize-cmi-payment]
+verify_jwt = true

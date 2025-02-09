@@ -189,27 +189,36 @@ export type Database = {
       }
       transactions: {
         Row: {
+          amount: number | null
           buyer_id: string | null
           car_id: number | null
           created_at: string
           id: string
+          order_id: string | null
           seller_id: string | null
+          status: string | null
           type: string | null
         }
         Insert: {
+          amount?: number | null
           buyer_id?: string | null
           car_id?: number | null
           created_at?: string
           id?: string
+          order_id?: string | null
           seller_id?: string | null
+          status?: string | null
           type?: string | null
         }
         Update: {
+          amount?: number | null
           buyer_id?: string | null
           car_id?: number | null
           created_at?: string
           id?: string
+          order_id?: string | null
           seller_id?: string | null
+          status?: string | null
           type?: string | null
         }
         Relationships: [
