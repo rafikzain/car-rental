@@ -1,22 +1,7 @@
 
 // @deno-types="npm:@types/node"
 
-import { serve } from "https://deno.land/std@0.208.0/http/server.ts"
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4"
-
-// Add type declaration for Deno namespace
-declare const Deno: {
-  env: {
-    get(key: string): string | undefined;
-  };
-};
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -24,11 +9,15 @@ serve(async (req) => {
   try {
     const { carId, amount, carName } = await req.json()
     
-    // Initialize Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') || '',
-      Deno.env.get('SUPABASE_ANON_KEY') || ''
-    )
+    // Initialize Supabase client using direct environment variables
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || '';
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error('Missing Supabase configuration');
+    }
+
+    const supabaseClient = await createClient(supabaseUrl, supabaseAnonKey);
 
     // Generate a unique order ID
     const orderId = `ORDER-${Date.now()}-${Math.random().toString(36).substring(7)}`
@@ -86,4 +75,19 @@ serve(async (req) => {
       }
     )
   }
-})
+});
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+// Types for Deno namespace
+declare const Deno: {
+  env: {
+    get(key: string): string | undefined;
+  };
+  serve(handler: (req: Request) => Promise<Response>): void;
+};
+
+declare const createClient: (url: string, key: string) => Promise<any>;
