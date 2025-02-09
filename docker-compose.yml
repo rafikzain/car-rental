@@ -1,0 +1,23 @@
+
+version: '3.8'
+
+services:
+  # Frontend application
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+      - VITE_CMI_MERCHANT_ID=${VITE_CMI_MERCHANT_ID}
+      - VITE_CMI_ENDPOINT=${VITE_CMI_ENDPOINT}
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
