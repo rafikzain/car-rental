@@ -1,5 +1,4 @@
 
-
 **Use your preferred IDE**
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
@@ -36,10 +35,69 @@ npm run dev
 
 ## What technologies are used for this project?
 
-This project is built with .
+This project is built with:
 
 - Vite
 - TypeScript
 - React
 - shadcn-ui
 - Tailwind CSS
+- Supabase (Authentication & Database)
+- Docker
+
+## Database Information
+
+The project uses Supabase as its database with the following main tables:
+
+- `profiles`: Stores user profile information
+- `cars`: Stores car listings information
+- `transactions`: Tracks car sales and rentals
+- `reviews`: Stores user reviews and ratings
+- `car_images`: Stores car image URLs
+- `car_brands`: Stores available car brands
+
+## Mock Users
+
+For testing purposes, you can use these mock accounts:
+
+### Admin User
+```
+Email: admin@example.com
+Password: admin123
+Type: admin
+```
+
+### Seller Account
+```
+Email: seller@example.com
+Password: seller123
+Type: seller
+```
+
+### Buyer Account
+```
+Email: buyer@example.com
+Password: buyer123
+Type: buyer
+```
+
+## Docker Setup
+
+The project includes Docker configuration for easy deployment:
+
+```sh
+# Build and start the containers
+docker-compose up --build
+
+# Stop the containers
+docker-compose down
+```
+
+Required environment variables (create a .env file):
+```
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_CMI_MERCHANT_ID=your_cmi_merchant_id
+VITE_CMI_ENDPOINT=your_cmi_endpoint
+```
+
