@@ -1,7 +1,15 @@
 
-// @deno-types="https://deno.land/std@0.208.0/http/server.ts"
+// @deno-types="npm:@types/node"
+
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4"
+
+// Add type declaration for Deno namespace
+declare const Deno: {
+  env: {
+    get(key: string): string | undefined;
+  };
+};
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,9 +26,8 @@ serve(async (req) => {
     
     // Initialize Supabase client
     const supabaseClient = createClient(
-      // Use type assertion for Deno.env
-      (Deno.env.get('SUPABASE_URL') ?? '') as string,
-      (Deno.env.get('SUPABASE_ANON_KEY') ?? '') as string
+      Deno.env.get('SUPABASE_URL') || '',
+      Deno.env.get('SUPABASE_ANON_KEY') || ''
     )
 
     // Generate a unique order ID
@@ -42,8 +49,8 @@ serve(async (req) => {
     if (transactionError) throw transactionError
 
     // CMI merchant ID and other configuration would come from environment variables
-    const merchantId = Deno.env.get('CMI_MERCHANT_ID') as string
-    const cmiEndpoint = Deno.env.get('CMI_ENDPOINT') as string
+    const merchantId = Deno.env.get('CMI_MERCHANT_ID')
+    const cmiEndpoint = Deno.env.get('CMI_ENDPOINT')
 
     if (!merchantId || !cmiEndpoint) {
       throw new Error('CMI configuration missing')
