@@ -9,6 +9,41 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      car_availability: {
+        Row: {
+          car_id: number | null
+          created_at: string
+          end_date: string
+          id: number
+          start_date: string
+          status: string
+        }
+        Insert: {
+          car_id?: number | null
+          created_at?: string
+          end_date: string
+          id?: number
+          start_date: string
+          status: string
+        }
+        Update: {
+          car_id?: number | null
+          created_at?: string
+          end_date?: string
+          id?: number
+          start_date?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "car_availability_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       car_brands: {
         Row: {
           created_at: string

@@ -1,3 +1,4 @@
+
 export interface Car {
   id: number;
   name: string;
@@ -16,6 +17,15 @@ export interface Car {
   phoneNumber?: string;
   images?: string[];
   featured?: boolean;
+  createdAt: Date;
+}
+
+export interface CarAvailability {
+  id: number;
+  carId: number;
+  startDate: Date;
+  endDate: Date;
+  status: 'booked' | 'maintenance' | 'unavailable';
   createdAt: Date;
 }
 

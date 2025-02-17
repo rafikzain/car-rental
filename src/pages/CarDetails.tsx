@@ -1,23 +1,27 @@
-
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Car } from "@/types";
+import { Car, CarAvailability } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { ArrowLeft, Car as CarIcon, Gauge, Settings, Zap, Timer, Calendar } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { useState } from "react";
-import { addDays, differenceInDays } from "date-fns";
+import { addDays, differenceInDays, isWithinInterval, format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@supabase/auth-helpers-react";
 
 const CarDetails = () => {
   const { id } = useParams();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const user = useAuth();
   const navigate = useNavigate();
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
 
-  const { data: car, isLoading } = useQuery({
+  // Fetch car details
+  const { data: car, isLoading: isLoadingCar } = useQuery({
     queryKey: ["car", id],
     queryFn: async () => {
       const numericId = parseInt(id!, 10);
@@ -37,19 +41,13 @@ const CarDetails = () => {
         .eq("id", numericId)
         .single();
 
-      if (error) {
-        throw error;
-      }
-
-      if (!data) {
-        return null;
-      }
+      if (error) throw error;
+      if (!data) return null;
 
       return {
         id: data.id,
         name: data.name,
         brand: data.brand,
-        price: data.price,
         dailyRate: data.daily_rate,
         image: data.car_images?.[0]?.image_url || "/placeholder.svg",
         description: data.description,
@@ -68,8 +66,77 @@ const CarDetails = () => {
     },
   });
 
+  // Fetch car availability
+  const { data: availability = [] } = useQuery({
+    queryKey: ["carAvailability", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("car_availability")
+        .select("*")
+        .eq("car_id", id);
+
+      if (error) throw error;
+
+      return data.map(item => ({
+        id: item.id,
+        carId: item.car_id,
+        startDate: new Date(item.start_date),
+        endDate: new Date(item.end_date),
+        status: item.status,
+        createdAt: new Date(item.created_at)
+      })) as CarAvailability[];
+    },
+  });
+
+  // Add new unavailability period
+  const addUnavailabilityMutation = useMutation({
+    mutationFn: async (dates: { startDate: Date; endDate: Date }) => {
+      const { error } = await supabase
+        .from("car_availability")
+        .insert({
+          car_id: id,
+          start_date: dates.startDate.toISOString(),
+          end_date: dates.endDate.toISOString(),
+          status: 'unavailable'
+        });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["carAvailability", id] });
+      toast({
+        title: "Success",
+        description: "Availability updated successfully",
+      });
+      setStartDate(undefined);
+      setEndDate(undefined);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update availability",
+        variant: "destructive"
+      });
+    }
+  });
+
   const handleReserve = async () => {
     if (!car || !startDate || !endDate) return;
+
+    // Check if dates are available
+    const isUnavailable = availability.some(period => 
+      isWithinInterval(startDate, { start: period.startDate, end: period.endDate }) ||
+      isWithinInterval(endDate, { start: period.startDate, end: period.endDate })
+    );
+
+    if (isUnavailable) {
+      toast({
+        title: "Error",
+        description: "Selected dates are not available",
+        variant: "destructive"
+      });
+      return;
+    }
 
     try {
       const days = differenceInDays(endDate, startDate);
@@ -107,13 +174,18 @@ const CarDetails = () => {
     });
   };
 
-  if (isLoading) {
+  if (isLoadingCar) {
     return (
       <div className="container mx-auto px-6 py-16 flex justify-center items-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
+
+  const handleMarkUnavailable = () => {
+    if (!startDate || !endDate) return;
+    addUnavailabilityMutation.mutate({ startDate, endDate });
+  };
 
   if (!car) {
     return (
@@ -126,10 +198,17 @@ const CarDetails = () => {
     );
   }
 
-  const disablePastDates = (date: Date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return date < today;
+  const isOwner = user?.user?.id === car.userId;
+
+  const getDayClassName = (date: Date) => {
+    const unavailablePeriod = availability.find(period => 
+      isWithinInterval(date, { start: period.startDate, end: period.endDate })
+    );
+
+    if (unavailablePeriod) {
+      return "bg-red-100 text-red-800 rounded-full";
+    }
+    return "";
   };
 
   return (
@@ -210,46 +289,94 @@ const CarDetails = () => {
             </div>
           </div>
 
-          {/* Rental Calendar */}
-          <div className="bg-white p-6 rounded-lg shadow-sm">
+          {/* Availability Calendar */}
+          <div className="bg-white p-6 rounded-lg shadow-sm mt-8">
             <h3 className="text-lg font-semibold mb-4 flex items-center">
               <Calendar className="w-5 h-5 mr-2" />
-              Select Rental Dates
+              Availability Calendar
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <h4 className="text-sm font-medium mb-2">Start Date</h4>
+                <h4 className="text-sm font-medium mb-2">Check-in Date</h4>
                 <CalendarComponent
                   mode="single"
                   selected={startDate}
                   onSelect={setStartDate}
-                  disabled={disablePastDates}
                   className="rounded-md border"
+                  modifiersClassNames={{
+                    selected: "bg-primary text-primary-foreground",
+                  }}
+                  modifierStyles={{
+                    disabled: { opacity: 0.5 },
+                  }}
+                  components={{
+                    DayContent: ({ date }) => (
+                      <div className={getDayClassName(date)}>
+                        {format(date, "d")}
+                      </div>
+                    ),
+                  }}
                 />
               </div>
+
               <div>
-                <h4 className="text-sm font-medium mb-2">End Date</h4>
+                <h4 className="text-sm font-medium mb-2">Check-out Date</h4>
                 <CalendarComponent
                   mode="single"
                   selected={endDate}
                   onSelect={setEndDate}
-                  disabled={(date) => 
-                    disablePastDates(date) || (startDate ? date <= startDate : false)
-                  }
+                  disabled={(date) => startDate ? date <= startDate : false}
                   className="rounded-md border"
+                  modifiersClassNames={{
+                    selected: "bg-primary text-primary-foreground",
+                  }}
+                  components={{
+                    DayContent: ({ date }) => (
+                      <div className={getDayClassName(date)}>
+                        {format(date, "d")}
+                      </div>
+                    ),
+                  }}
                 />
               </div>
             </div>
-            {startDate && endDate && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">
-                  Rental Period: {differenceInDays(endDate, startDate)} days
-                </p>
-                <p className="text-lg font-bold text-primary mt-2">
-                  Total: ${(differenceInDays(endDate, startDate) * car.dailyRate).toLocaleString()}
-                </p>
+
+            <div className="mt-4 space-y-4">
+              <div className="flex gap-2">
+                <Badge variant="outline" className="bg-white">Available</Badge>
+                <Badge variant="outline" className="bg-red-100 text-red-800">Unavailable</Badge>
               </div>
-            )}
+
+              {startDate && endDate && (
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">
+                    Selected Period: {differenceInDays(endDate, startDate)} days
+                  </p>
+                  <p className="text-lg font-bold text-primary mt-2">
+                    Total: ${(differenceInDays(endDate, startDate) * car.dailyRate).toLocaleString()}
+                  </p>
+                </div>
+              )}
+
+              {isOwner ? (
+                <Button
+                  onClick={handleMarkUnavailable}
+                  className="w-full"
+                  disabled={!startDate || !endDate}
+                >
+                  Mark as Unavailable
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleReserve}
+                  className="w-full"
+                  disabled={!startDate || !endDate}
+                >
+                  Reserve Now
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Additional Information */}
