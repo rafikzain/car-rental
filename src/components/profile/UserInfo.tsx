@@ -26,24 +26,12 @@ export default function UserInfo({ user }: UserInfoProps) {
 
       if (error) throw error;
 
-      // Map the database results to match the expected type
+      // Map the database results to match the expected type for ReportUserDialog
       return cars?.map(car => ({
         id: car.id,
         name: car.name,
         brand: car.brand,
-        dailyRate: car.daily_rate,
-        description: car.description,
-        specs: {
-          engine: car.engine || "",
-          power: car.power || "",
-          acceleration: car.acceleration || "",
-          transmission: car.transmission || "",
-        },
-        userId: car.user_id,
-        location: car.location || undefined,
-        phoneNumber: car.phone_number || undefined,
-        featured: car.featured || false,
-        createdAt: new Date(car.created_at)
+        price: car.daily_rate // Map dailyRate to price for ReportUserDialog
       })) || [];
     },
   });
