@@ -1,3 +1,4 @@
+
 import { Car } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -29,7 +30,7 @@ export default function CarList({ cars, emptyMessage }: CarListProps) {
             <CardContent>
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Brand: {car.brand}</p>
-                <p className="text-sm text-muted-foreground">Price: ${car.price}</p>
+                <p className="text-sm text-muted-foreground">Daily Rate: ${car.dailyRate}</p>
                 <p className="text-sm text-muted-foreground">
                   Listed on: {car.createdAt.toLocaleDateString()}
                 </p>

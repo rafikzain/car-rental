@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { Car, CarAvailability } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -9,16 +9,22 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { useState } from "react";
 import { addDays, differenceInDays, isWithinInterval, format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@supabase/auth-helpers-react";
 
 const CarDetails = () => {
   const { id } = useParams();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const user = useAuth();
-  const navigate = useNavigate();
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
+
+  // Get current user
+  const { data: userData } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: async () => {
+      const { data } = await supabase.auth.getUser();
+      return data;
+    },
+  });
 
   // Fetch car details
   const { data: car, isLoading: isLoadingCar } = useQuery({
@@ -70,10 +76,16 @@ const CarDetails = () => {
   const { data: availability = [] } = useQuery({
     queryKey: ["carAvailability", id],
     queryFn: async () => {
+      const numericId = parseInt(id!, 10);
+      
+      if (isNaN(numericId)) {
+        throw new Error("Invalid car ID");
+      }
+
       const { data, error } = await supabase
         .from("car_availability")
         .select("*")
-        .eq("car_id", id);
+        .eq("car_id", numericId);
 
       if (error) throw error;
 
@@ -91,10 +103,16 @@ const CarDetails = () => {
   // Add new unavailability period
   const addUnavailabilityMutation = useMutation({
     mutationFn: async (dates: { startDate: Date; endDate: Date }) => {
+      const numericId = parseInt(id!, 10);
+      
+      if (isNaN(numericId)) {
+        throw new Error("Invalid car ID");
+      }
+
       const { error } = await supabase
         .from("car_availability")
         .insert({
-          car_id: id,
+          car_id: numericId,
           start_date: dates.startDate.toISOString(),
           end_date: dates.endDate.toISOString(),
           status: 'unavailable'
@@ -167,11 +185,9 @@ const CarDetails = () => {
     }
   };
 
-  const handleContact = () => {
-    toast({
-      title: "Contact request sent",
-      description: "The owner will contact you soon.",
-    });
+  const handleMarkUnavailable = () => {
+    if (!startDate || !endDate) return;
+    addUnavailabilityMutation.mutate({ startDate, endDate });
   };
 
   if (isLoadingCar) {
@@ -181,11 +197,6 @@ const CarDetails = () => {
       </div>
     );
   }
-
-  const handleMarkUnavailable = () => {
-    if (!startDate || !endDate) return;
-    addUnavailabilityMutation.mutate({ startDate, endDate });
-  };
 
   if (!car) {
     return (
@@ -198,7 +209,7 @@ const CarDetails = () => {
     );
   }
 
-  const isOwner = user?.user?.id === car.userId;
+  const isOwner = userData?.user?.id === car.userId;
 
   const getDayClassName = (date: Date) => {
     const unavailablePeriod = availability.find(period => 
@@ -251,46 +262,8 @@ const CarDetails = () => {
             <p className="mt-4 text-gray-600">{car.description}</p>
           </div>
 
-          {/* Car Specifications */}
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h3 className="text-lg font-semibold mb-4 flex items-center">
-              <Settings className="w-5 h-5 mr-2" />
-              Car Specifications
-            </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <p className="text-sm text-gray-500 flex items-center">
-                  <CarIcon className="w-4 h-4 mr-1" />
-                  Engine
-                </p>
-                <p className="text-gray-700">{car.specs.engine}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm text-gray-500 flex items-center">
-                  <Zap className="w-4 h-4 mr-1" />
-                  Power
-                </p>
-                <p className="text-gray-700">{car.specs.power}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm text-gray-500 flex items-center">
-                  <Timer className="w-4 h-4 mr-1" />
-                  Acceleration
-                </p>
-                <p className="text-gray-700">{car.specs.acceleration}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm text-gray-500 flex items-center">
-                  <Gauge className="w-4 h-4 mr-1" />
-                  Transmission
-                </p>
-                <p className="text-gray-700">{car.specs.transmission}</p>
-              </div>
-            </div>
-          </div>
-
           {/* Availability Calendar */}
-          <div className="bg-white p-6 rounded-lg shadow-sm mt-8">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <h3 className="text-lg font-semibold mb-4 flex items-center">
               <Calendar className="w-5 h-5 mr-2" />
               Availability Calendar
@@ -307,7 +280,7 @@ const CarDetails = () => {
                   modifiersClassNames={{
                     selected: "bg-primary text-primary-foreground",
                   }}
-                  modifierStyles={{
+                  modifiersStyles={{
                     disabled: { opacity: 0.5 },
                   }}
                   components={{
@@ -330,6 +303,9 @@ const CarDetails = () => {
                   className="rounded-md border"
                   modifiersClassNames={{
                     selected: "bg-primary text-primary-foreground",
+                  }}
+                  modifiersStyles={{
+                    disabled: { opacity: 0.5 },
                   }}
                   components={{
                     DayContent: ({ date }) => (
@@ -379,6 +355,44 @@ const CarDetails = () => {
             </div>
           </div>
 
+          {/* Car Specifications */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-lg font-semibold mb-4 flex items-center">
+              <Settings className="w-5 h-5 mr-2" />
+              Car Specifications
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500 flex items-center">
+                  <CarIcon className="w-4 h-4 mr-1" />
+                  Engine
+                </p>
+                <p className="text-gray-700">{car.specs.engine}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500 flex items-center">
+                  <Zap className="w-4 h-4 mr-1" />
+                  Power
+                </p>
+                <p className="text-gray-700">{car.specs.power}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500 flex items-center">
+                  <Timer className="w-4 h-4 mr-1" />
+                  Acceleration
+                </p>
+                <p className="text-gray-700">{car.specs.acceleration}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-500 flex items-center">
+                  <Gauge className="w-4 h-4 mr-1" />
+                  Transmission
+                </p>
+                <p className="text-gray-700">{car.specs.transmission}</p>
+              </div>
+            </div>
+          </div>
+
           {/* Additional Information */}
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <h3 className="text-lg font-semibold mb-4">Additional Information</h3>
@@ -394,24 +408,6 @@ const CarDetails = () => {
                 </p>
               )}
             </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="space-y-4">
-            <Button
-              onClick={handleReserve}
-              className="w-full py-6 text-lg bg-green-600 hover:bg-green-700"
-              disabled={!startDate || !endDate}
-            >
-              Reserve Now
-            </Button>
-            <Button
-              onClick={handleContact}
-              className="w-full py-6 text-lg"
-              variant="outline"
-            >
-              Contact Owner
-            </Button>
           </div>
         </div>
       </div>
