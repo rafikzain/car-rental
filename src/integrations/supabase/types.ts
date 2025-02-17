@@ -95,6 +95,7 @@ export type Database = {
         Row: {
           acceleration: string | null
           brand: string
+          city: Database["public"]["Enums"]["moroccan_city"]
           created_at: string
           daily_rate: number
           description: string
@@ -111,6 +112,7 @@ export type Database = {
         Insert: {
           acceleration?: string | null
           brand: string
+          city: Database["public"]["Enums"]["moroccan_city"]
           created_at?: string
           daily_rate: number
           description: string
@@ -127,6 +129,7 @@ export type Database = {
         Update: {
           acceleration?: string | null
           brand?: string
+          city?: Database["public"]["Enums"]["moroccan_city"]
           created_at?: string
           daily_rate?: number
           description?: string
@@ -274,7 +277,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      moroccan_city: "Casablanca" | "FES" | "RABAT" | "AGADIR" | "MARRAKECH"
     }
     CompositeTypes: {
       [_ in never]: never

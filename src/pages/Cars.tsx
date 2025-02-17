@@ -13,6 +13,7 @@ const Cars = () => {
     userId: undefined,
     startDate: undefined,
     endDate: undefined,
+    city: undefined,
   });
 
   const { data: cars = [], isLoading } = useQuery({
@@ -46,6 +47,10 @@ const Cars = () => {
 
       if (filters.userId) {
         query = query.eq('user_id', filters.userId);
+      }
+
+      if (filters.city) {
+        query = query.eq('city', filters.city);
       }
 
       const { data, error } = await query;
@@ -89,6 +94,7 @@ const Cars = () => {
         location: car.location,
         phoneNumber: car.phone_number,
         featured: car.featured,
+        city: car.city,
         createdAt: new Date(car.created_at)
       })) as Car[];
     },
@@ -110,7 +116,7 @@ const Cars = () => {
       ) : (
         <>
           <h2 className="text-3xl font-bold text-gray-800 mb-8">
-            {filters.searchTerm || filters.brand || filters.userId || filters.startDate ? "Search Results" : "Available Cars"}
+            {filters.searchTerm || filters.brand || filters.userId || filters.startDate || filters.city ? "Search Results" : "Available Cars"}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {cars.map((car) => (

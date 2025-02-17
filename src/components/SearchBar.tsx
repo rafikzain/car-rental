@@ -21,12 +21,16 @@ export interface SearchFilters {
   userId?: string;
   startDate?: Date;
   endDate?: Date;
+  city?: string;
 }
+
+const CITIES = ['Casablanca', 'FES', 'RABAT', 'AGADIR', 'MARRAKECH'];
 
 const SearchBar = ({ onSearch }: SearchBarProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBrand, setSelectedBrand] = useState<string>("all");
   const [selectedUser, setSelectedUser] = useState<string>("all");
+  const [selectedCity, setSelectedCity] = useState<string>("all");
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [brands, setBrands] = useState<{ id: number; name: string }[]>([]);
@@ -62,13 +66,14 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
   // New useEffect to trigger search when filters change
   useEffect(() => {
     handleSearch();
-  }, [searchTerm, selectedBrand, selectedUser, startDate, endDate]);
+  }, [searchTerm, selectedBrand, selectedUser, selectedCity, startDate, endDate]);
 
   const handleSearch = () => {
     onSearch({
       searchTerm,
       brand: selectedBrand === "all" ? undefined : selectedBrand,
       userId: selectedUser === "all" ? undefined : selectedUser,
+      city: selectedCity === "all" ? undefined : selectedCity,
       startDate,
       endDate
     });
@@ -95,6 +100,20 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
           {brands.map((brand) => (
             <SelectItem key={brand.id} value={brand.name}>
               {brand.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select value={selectedCity} onValueChange={setSelectedCity}>
+        <SelectTrigger className="w-full md:w-[200px] bg-white">
+          <SelectValue placeholder="Select city" />
+        </SelectTrigger>
+        <SelectContent className="bg-white">
+          <SelectItem value="all">All cities</SelectItem>
+          {CITIES.map((city) => (
+            <SelectItem key={city} value={city}>
+              {city}
             </SelectItem>
           ))}
         </SelectContent>

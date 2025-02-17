@@ -1,4 +1,3 @@
-
 export interface Car {
   id: number;
   name: string;
@@ -18,6 +17,7 @@ export interface Car {
   images?: string[];
   featured?: boolean;
   createdAt: Date;
+  city: 'Casablanca' | 'FES' | 'RABAT' | 'AGADIR' | 'MARRAKECH';
 }
 
 export interface CarAvailability {
