@@ -10,16 +10,15 @@ const fetchSellers = async () => {
   const { data: profiles, error } = await supabase
     .from("profiles")
     .select("*")
-    .in("user_type", ["seller", "both"]);
+    .in("user_type", ["owner", "both"]);
 
   if (error) throw error;
 
-  // Map the Supabase response to our User type
   const sellers: User[] = profiles.map(profile => ({
     id: profile.id,
     email: "", // Email is not available from profiles table
     name: profile.name,
-    userType: profile.user_type as "buyer" | "seller" | "both" | "admin",
+    userType: profile.user_type as "owner" | "renter" | "both" | "admin",
     phoneNumber: profile.phone_number || undefined,
     location: profile.location || undefined,
     isBanned: profile.is_banned || false,

@@ -12,19 +12,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Car } from "@/types";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   brand: z.string().min(2, "Brand must be at least 2 characters"),
-  type: z.enum(["rent", "sale"]),
+  dailyRate: z.number().min(0, "Daily rate must be positive"),
   price: z.number().min(0, "Price must be positive"),
   image: z.string().url("Must be a valid URL"),
   description: z.string().min(10, "Description must be at least 10 characters"),
@@ -44,7 +37,7 @@ const AddCarForm = ({ onSubmit }: AddCarFormProps) => {
     defaultValues: {
       name: "",
       brand: "",
-      type: "sale",
+      dailyRate: 0,
       price: 0,
       image: "",
       description: "",
@@ -60,8 +53,8 @@ const AddCarForm = ({ onSubmit }: AddCarFormProps) => {
       id: Date.now(),
       name: values.name,
       brand: values.brand,
-      type: values.type,
       price: values.price,
+      dailyRate: values.dailyRate,
       image: values.image,
       description: values.description,
       specs: {
@@ -70,7 +63,7 @@ const AddCarForm = ({ onSubmit }: AddCarFormProps) => {
         acceleration: values.acceleration,
         transmission: values.transmission,
       },
-      createdAt: new Date(), // Add the createdAt field
+      createdAt: new Date(),
     };
     onSubmit(newCar);
     form.reset();
@@ -109,21 +102,18 @@ const AddCarForm = ({ onSubmit }: AddCarFormProps) => {
 
         <FormField
           control={form.control}
-          name="type"
+          name="dailyRate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="sale">Sale</SelectItem>
-                  <SelectItem value="rent">Rent</SelectItem>
-                </SelectContent>
-              </Select>
+              <FormLabel>Daily Rate</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="89990"
+                  {...field}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

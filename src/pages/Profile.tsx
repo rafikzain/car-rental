@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -11,10 +12,8 @@ export default function Profile() {
   const { id } = useParams();
   const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
-  const [soldCars, setSoldCars] = useState<Car[]>([]);
-  const [boughtCars, setBoughtCars] = useState<Car[]>([]);
+  const [ownedCars, setOwnedCars] = useState<Car[]>([]);
   const [rentedCars, setRentedCars] = useState<Car[]>([]);
-  const [rentingCars, setRentingCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,17 +29,12 @@ export default function Profile() {
         if (profileError) throw profileError;
 
         if (profile) {
-          // Validate user_type before setting it
-          const userType = profile.user_type as "buyer" | "seller" | "both" | "admin";
-          if (!["buyer", "seller", "both", "admin"].includes(userType)) {
-            throw new Error("Invalid user type");
-          }
-
+          const userType = profile.user_type as "owner" | "renter" | "both" | "admin";
           setUser({
             id: profile.id,
             email: "", // We don't have access to email without admin privileges
             name: profile.name,
-            userType: userType,
+            userType,
             phoneNumber: profile.phone_number || undefined,
             location: profile.location || undefined,
             isBanned: profile.is_banned || false,
@@ -48,49 +42,36 @@ export default function Profile() {
             createdAt: new Date(profile.created_at)
           });
 
-          // Fetch transactions
-          const { data: soldTransactions } = await supabase
+          // Fetch owned cars
+          const { data: ownedCarsData, error: ownedError } = await supabase
+            .from('cars')
+            .select('*')
+            .eq('user_id', id);
+
+          if (ownedError) throw ownedError;
+
+          // Fetch rented cars through transactions
+          const { data: rentedTransactions, error: rentedError } = await supabase
             .from('transactions')
             .select('*, cars(*)')
-            .eq('seller_id', id)
-            .eq('type', 'sale');
+            .eq('renter_id', id);
 
-          const { data: boughtTransactions } = await supabase
-            .from('transactions')
-            .select('*, cars(*)')
-            .eq('buyer_id', id)
-            .eq('type', 'sale');
+          if (rentedError) throw rentedError;
 
-          const { data: rentedTransactions } = await supabase
-            .from('transactions')
-            .select('*, cars(*)')
-            .eq('buyer_id', id)
-            .eq('type', 'rent');
-
-          const { data: rentingTransactions } = await supabase
-            .from('transactions')
-            .select('*, cars(*)')
-            .eq('seller_id', id)
-            .eq('type', 'rent');
-
-          const mapTransactionToCar = (t: any): Car => ({
+          setOwnedCars(ownedCarsData || []);
+          setRentedCars(rentedTransactions?.map(t => ({
             id: t.cars.id,
             name: t.cars.name,
             brand: t.cars.brand,
-            type: t.cars.type === "sale" ? "sale" : "rent",
             price: t.cars.price,
+            dailyRate: t.cars.daily_rate,
             description: t.cars.description,
             createdAt: new Date(t.cars.created_at),
             userId: t.cars.user_id,
-            featured: t.cars.featured || false,
-            location: t.cars.location || undefined,
-            phoneNumber: t.cars.phone_number || undefined
-          });
-
-          setSoldCars(soldTransactions?.map(mapTransactionToCar) || []);
-          setBoughtCars(boughtTransactions?.map(mapTransactionToCar) || []);
-          setRentedCars(rentedTransactions?.map(mapTransactionToCar) || []);
-          setRentingCars(rentingTransactions?.map(mapTransactionToCar) || []);
+            location: t.cars.location,
+            phoneNumber: t.cars.phone_number,
+            featured: t.cars.featured
+          })) || []);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -122,10 +103,8 @@ export default function Profile() {
       <UserSearch />
       <UserInfo user={user} />
       <UserTransactions
-        soldCars={soldCars}
-        boughtCars={boughtCars}
+        ownedCars={ownedCars}
         rentedCars={rentedCars}
-        rentingCars={rentingCars}
       />
     </div>
   );

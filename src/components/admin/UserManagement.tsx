@@ -14,7 +14,6 @@ export default function UserManagement() {
   const { data: users, refetch } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      // First get profiles
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
@@ -22,19 +21,17 @@ export default function UserManagement() {
 
       if (profilesError) throw profilesError;
 
-      // Get users from auth to get emails
       const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers();
       
       if (authError) throw authError;
 
-      // Map profiles to our User type
       return profiles.map((profile): User => {
         const authUser = (authUsers as AuthUser[]).find(u => u.id === profile.id);
         return {
           id: profile.id,
           email: authUser?.email || "",
           name: profile.name,
-          userType: profile.user_type as "buyer" | "seller" | "both" | "admin",
+          userType: profile.user_type as "owner" | "renter" | "both" | "admin",
           phoneNumber: profile.phone_number || undefined,
           location: profile.location || undefined,
           isBanned: profile.is_banned || false,
