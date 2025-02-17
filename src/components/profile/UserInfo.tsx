@@ -25,7 +25,26 @@ export default function UserInfo({ user }: UserInfoProps) {
         .eq("user_id", id);
 
       if (error) throw error;
-      return cars;
+
+      // Map the database results to match the expected type
+      return cars?.map(car => ({
+        id: car.id,
+        name: car.name,
+        brand: car.brand,
+        dailyRate: car.daily_rate,
+        description: car.description,
+        specs: {
+          engine: car.engine || "",
+          power: car.power || "",
+          acceleration: car.acceleration || "",
+          transmission: car.transmission || "",
+        },
+        userId: car.user_id,
+        location: car.location || undefined,
+        phoneNumber: car.phone_number || undefined,
+        featured: car.featured || false,
+        createdAt: new Date(car.created_at)
+      })) || [];
     },
   });
 
