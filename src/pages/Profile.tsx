@@ -50,6 +50,29 @@ export default function Profile() {
 
           if (ownedError) throw ownedError;
 
+          if (ownedCarsData) {
+            const mappedOwnedCars: Car[] = ownedCarsData.map(car => ({
+              id: car.id,
+              name: car.name,
+              brand: car.brand,
+              price: car.price,
+              dailyRate: car.daily_rate,
+              description: car.description,
+              specs: {
+                engine: car.engine || "",
+                power: car.power || "",
+                acceleration: car.acceleration || "",
+                transmission: car.transmission || "",
+              },
+              userId: car.user_id,
+              location: car.location || undefined,
+              phoneNumber: car.phone_number || undefined,
+              featured: car.featured || false,
+              createdAt: new Date(car.created_at)
+            }));
+            setOwnedCars(mappedOwnedCars);
+          }
+
           // Fetch rented cars through transactions
           const { data: rentedTransactions, error: rentedError } = await supabase
             .from('transactions')
@@ -58,20 +81,28 @@ export default function Profile() {
 
           if (rentedError) throw rentedError;
 
-          setOwnedCars(ownedCarsData || []);
-          setRentedCars(rentedTransactions?.map(t => ({
-            id: t.cars.id,
-            name: t.cars.name,
-            brand: t.cars.brand,
-            price: t.cars.price,
-            dailyRate: t.cars.daily_rate,
-            description: t.cars.description,
-            createdAt: new Date(t.cars.created_at),
-            userId: t.cars.user_id,
-            location: t.cars.location,
-            phoneNumber: t.cars.phone_number,
-            featured: t.cars.featured
-          })) || []);
+          if (rentedTransactions) {
+            const mappedRentedCars: Car[] = rentedTransactions.map(t => ({
+              id: t.cars.id,
+              name: t.cars.name,
+              brand: t.cars.brand,
+              price: t.cars.price,
+              dailyRate: t.cars.daily_rate,
+              description: t.cars.description,
+              specs: {
+                engine: t.cars.engine || "",
+                power: t.cars.power || "",
+                acceleration: t.cars.acceleration || "",
+                transmission: t.cars.transmission || "",
+              },
+              userId: t.cars.user_id,
+              location: t.cars.location || undefined,
+              phoneNumber: t.cars.phone_number || undefined,
+              featured: t.cars.featured || false,
+              createdAt: new Date(t.cars.created_at)
+            }));
+            setRentedCars(mappedRentedCars);
+          }
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
