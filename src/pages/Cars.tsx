@@ -11,6 +11,8 @@ const Cars = () => {
     searchTerm: "",
     brand: undefined,
     userId: undefined,
+    startDate: undefined,
+    endDate: undefined,
   });
 
   const { data: cars = [], isLoading } = useQuery({
@@ -22,6 +24,11 @@ const Cars = () => {
           *,
           car_images (
             image_url
+          ),
+          car_availability (
+            start_date,
+            end_date,
+            status
           )
         `)
         .order('created_at', { ascending: false })
@@ -47,7 +54,31 @@ const Cars = () => {
         throw error;
       }
 
-      return data.map((car: any) => ({
+      // Filter out cars that are unavailable during the selected date range
+      let filteredData = data;
+      if (filters.startDate && filters.endDate) {
+        filteredData = data.filter(car => {
+          if (!car.car_availability) return true;
+          
+          // Check if the car is available during the selected dates
+          const hasConflict = car.car_availability.some((availability: any) => {
+            const availStart = new Date(availability.start_date);
+            const availEnd = new Date(availability.end_date);
+            const filterStart = new Date(filters.startDate!);
+            const filterEnd = new Date(filters.endDate!);
+            
+            return (
+              (filterStart >= availStart && filterStart <= availEnd) ||
+              (filterEnd >= availStart && filterEnd <= availEnd) ||
+              (filterStart <= availStart && filterEnd >= availEnd)
+            );
+          });
+          
+          return !hasConflict;
+        });
+      }
+
+      return filteredData.map((car: any) => ({
         id: car.id,
         name: car.name,
         brand: car.brand,
@@ -79,7 +110,7 @@ const Cars = () => {
       ) : (
         <>
           <h2 className="text-3xl font-bold text-gray-800 mb-8">
-            {filters.searchTerm || filters.brand || filters.userId ? "Search Results" : "Available Cars"}
+            {filters.searchTerm || filters.brand || filters.userId || filters.startDate ? "Search Results" : "Available Cars"}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {cars.map((car) => (
