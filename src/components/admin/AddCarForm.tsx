@@ -1,3 +1,4 @@
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -18,7 +19,6 @@ const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   brand: z.string().min(2, "Brand must be at least 2 characters"),
   dailyRate: z.number().min(0, "Daily rate must be positive"),
-  price: z.number().min(0, "Price must be positive"),
   image: z.string().url("Must be a valid URL"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   engine: z.string(),
@@ -38,7 +38,6 @@ const AddCarForm = ({ onSubmit }: AddCarFormProps) => {
       name: "",
       brand: "",
       dailyRate: 0,
-      price: 0,
       image: "",
       description: "",
       engine: "",
@@ -53,7 +52,6 @@ const AddCarForm = ({ onSubmit }: AddCarFormProps) => {
       id: Date.now(),
       name: values.name,
       brand: values.brand,
-      price: values.price,
       dailyRate: values.dailyRate,
       image: values.image,
       description: values.description,
@@ -109,26 +107,7 @@ const AddCarForm = ({ onSubmit }: AddCarFormProps) => {
               <FormControl>
                 <Input
                   type="number"
-                  placeholder="89990"
-                  {...field}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="price"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Price</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="89990"
+                  placeholder="150"
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />

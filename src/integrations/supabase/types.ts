@@ -70,7 +70,6 @@ export type Database = {
           name: string
           phone_number: string | null
           power: string | null
-          price: number
           transmission: string | null
           user_id: string | null
         }
@@ -87,7 +86,6 @@ export type Database = {
           name: string
           phone_number?: string | null
           power?: string | null
-          price: number
           transmission?: string | null
           user_id?: string | null
         }
@@ -104,7 +102,6 @@ export type Database = {
           name?: string
           phone_number?: string | null
           power?: string | null
-          price?: number
           transmission?: string | null
           user_id?: string | null
         }

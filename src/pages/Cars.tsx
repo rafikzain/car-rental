@@ -51,7 +51,6 @@ const Cars = () => {
         id: car.id,
         name: car.name,
         brand: car.brand,
-        price: car.price,
         dailyRate: car.daily_rate,
         image: car.car_images?.[0]?.image_url || "/placeholder.svg",
         description: car.description,

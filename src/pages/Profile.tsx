@@ -55,7 +55,6 @@ export default function Profile() {
               id: car.id,
               name: car.name,
               brand: car.brand,
-              price: car.price,
               dailyRate: car.daily_rate,
               description: car.description,
               specs: {
@@ -86,7 +85,6 @@ export default function Profile() {
               id: t.cars.id,
               name: t.cars.name,
               brand: t.cars.brand,
-              price: t.cars.price,
               dailyRate: t.cars.daily_rate,
               description: t.cars.description,
               specs: {
