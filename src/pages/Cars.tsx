@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import CarCard from "@/components/CarCard";
 import SearchBar, { SearchFilters } from "@/components/SearchBar";
@@ -10,7 +11,6 @@ const Cars = () => {
     searchTerm: "",
     brand: undefined,
     userId: undefined,
-    type: undefined,
   });
 
   const { data: cars = [], isLoading } = useQuery({
@@ -41,10 +41,6 @@ const Cars = () => {
         query = query.eq('user_id', filters.userId);
       }
 
-      if (filters.type) {
-        query = query.eq('type', filters.type);
-      }
-
       const { data, error } = await query;
 
       if (error) {
@@ -55,8 +51,8 @@ const Cars = () => {
         id: car.id,
         name: car.name,
         brand: car.brand,
-        type: car.type as "rent" | "sale",
         price: car.price,
+        dailyRate: car.daily_rate,
         image: car.car_images?.[0]?.image_url || "/placeholder.svg",
         description: car.description,
         userId: car.user_id,
@@ -84,7 +80,7 @@ const Cars = () => {
       ) : (
         <>
           <h2 className="text-3xl font-bold text-gray-800 mb-8">
-            {filters.searchTerm || filters.brand || filters.userId || filters.type ? "Search Results" : "All Cars"}
+            {filters.searchTerm || filters.brand || filters.userId ? "Search Results" : "Available Cars"}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {cars.map((car) => (

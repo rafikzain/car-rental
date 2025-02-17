@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Car } from "@/types";
 
@@ -11,20 +12,20 @@ const CarCard = ({ car }: { car: Car }) => {
             alt={car.name}
             className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
           />
-          <div className="absolute top-2 right-2 bg-primary text-white px-2 py-1 rounded">
-            {car.type}
-          </div>
+          {car.featured && (
+            <div className="absolute top-2 right-2 bg-primary text-white px-2 py-1 rounded">
+              Featured
+            </div>
+          )}
         </div>
         <div className="p-4">
           <h3 className="text-xl font-semibold text-gray-800">{car.name}</h3>
           <p className="text-gray-600 mt-1">{car.brand}</p>
           <div className="mt-4 flex justify-between items-center">
             <span className="text-2xl font-bold text-primary">
-              ${car.price.toLocaleString()}
+              ${car.dailyRate.toLocaleString()}
             </span>
-            <span className="text-sm text-gray-500">
-              {car.type === "rent" ? "/day" : ""}
-            </span>
+            <span className="text-sm text-gray-500">/day</span>
           </div>
         </div>
       </div>

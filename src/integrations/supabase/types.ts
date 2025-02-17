@@ -61,6 +61,7 @@ export type Database = {
           acceleration: string | null
           brand: string
           created_at: string
+          daily_rate: number
           description: string
           engine: string | null
           featured: boolean | null
@@ -71,13 +72,13 @@ export type Database = {
           power: string | null
           price: number
           transmission: string | null
-          type: string
           user_id: string | null
         }
         Insert: {
           acceleration?: string | null
           brand: string
           created_at?: string
+          daily_rate: number
           description: string
           engine?: string | null
           featured?: boolean | null
@@ -88,13 +89,13 @@ export type Database = {
           power?: string | null
           price: number
           transmission?: string | null
-          type: string
           user_id?: string | null
         }
         Update: {
           acceleration?: string | null
           brand?: string
           created_at?: string
+          daily_rate?: number
           description?: string
           engine?: string | null
           featured?: boolean | null
@@ -105,7 +106,6 @@ export type Database = {
           power?: string | null
           price?: number
           transmission?: string | null
-          type?: string
           user_id?: string | null
         }
         Relationships: []
@@ -189,37 +189,40 @@ export type Database = {
       }
       transactions: {
         Row: {
-          amount: number | null
-          buyer_id: string | null
           car_id: number | null
           created_at: string
+          end_date: string | null
           id: string
           order_id: string | null
-          seller_id: string | null
+          owner_id: string | null
+          renter_id: string | null
+          start_date: string | null
           status: string | null
-          type: string | null
+          total_amount: number | null
         }
         Insert: {
-          amount?: number | null
-          buyer_id?: string | null
           car_id?: number | null
           created_at?: string
+          end_date?: string | null
           id?: string
           order_id?: string | null
-          seller_id?: string | null
+          owner_id?: string | null
+          renter_id?: string | null
+          start_date?: string | null
           status?: string | null
-          type?: string | null
+          total_amount?: number | null
         }
         Update: {
-          amount?: number | null
-          buyer_id?: string | null
           car_id?: number | null
           created_at?: string
+          end_date?: string | null
           id?: string
           order_id?: string | null
-          seller_id?: string | null
+          owner_id?: string | null
+          renter_id?: string | null
+          start_date?: string | null
           status?: string | null
-          type?: string | null
+          total_amount?: number | null
         }
         Relationships: [
           {

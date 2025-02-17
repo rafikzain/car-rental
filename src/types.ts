@@ -1,9 +1,10 @@
+
 export interface Car {
   id: number;
   name: string;
   brand: string;
-  type: "rent" | "sale";
   price: number;
+  dailyRate: number;
   image?: string;
   description: string;
   specs?: {
@@ -24,7 +25,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  userType: "buyer" | "seller" | "both" | "admin";
+  userType: "owner" | "renter" | "both" | "admin";
   phoneNumber?: string;
   location?: string;
   isBanned?: boolean;
@@ -36,10 +37,9 @@ export interface User {
 export interface Review {
   id: string;
   userId: string;
-  sellerId: string;
+  ownerId: string;
   rating: number;
   comment: string;
   carId: number;
-  transactionType: "buy" | "rent";
   createdAt: Date;
 }
