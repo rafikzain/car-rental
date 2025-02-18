@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import CarCard from "@/components/CarCard";
 import SearchBar, { SearchFilters } from "@/components/SearchBar";
 import { Car } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { City } from "@/components/admin/constants/cities";
 
 const Cars = () => {
   const [filters, setFilters] = useState<SearchFilters>({
@@ -50,7 +50,7 @@ const Cars = () => {
       }
 
       if (filters.city) {
-        query = query.eq('city', filters.city);
+        query = query.eq('city', filters.city as City);
       }
 
       const { data, error } = await query;
@@ -59,13 +59,11 @@ const Cars = () => {
         throw error;
       }
 
-      // Filter out cars that are unavailable during the selected date range
       let filteredData = data;
       if (filters.startDate && filters.endDate) {
         filteredData = data.filter(car => {
           if (!car.car_availability) return true;
           
-          // Check if the car is available during the selected dates
           const hasConflict = car.car_availability.some((availability: any) => {
             const availStart = new Date(availability.start_date);
             const availEnd = new Date(availability.end_date);
