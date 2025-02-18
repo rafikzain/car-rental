@@ -67,6 +67,7 @@ export default function Profile() {
               location: car.location || undefined,
               phoneNumber: car.phone_number || undefined,
               featured: car.featured || false,
+              city: car.city || 'Casablanca', // Add default city
               createdAt: new Date(car.created_at)
             }));
             setOwnedCars(mappedOwnedCars);
@@ -97,6 +98,7 @@ export default function Profile() {
               location: t.cars.location || undefined,
               phoneNumber: t.cars.phone_number || undefined,
               featured: t.cars.featured || false,
+              city: t.cars.city || 'Casablanca', // Add default city
               createdAt: new Date(t.cars.created_at)
             }));
             setRentedCars(mappedRentedCars);

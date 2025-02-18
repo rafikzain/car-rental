@@ -13,6 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Car } from "@/types";
 
 const formSchema = z.object({
@@ -25,11 +26,14 @@ const formSchema = z.object({
   power: z.string(),
   acceleration: z.string(),
   transmission: z.string(),
+  city: z.enum(['Casablanca', 'FES', 'RABAT', 'AGADIR', 'MARRAKECH']),
 });
 
 interface AddCarFormProps {
   onSubmit: (car: Car) => void;
 }
+
+const CITIES = ['Casablanca', 'FES', 'RABAT', 'AGADIR', 'MARRAKECH'] as const;
 
 const AddCarForm = ({ onSubmit }: AddCarFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -44,6 +48,7 @@ const AddCarForm = ({ onSubmit }: AddCarFormProps) => {
       power: "",
       acceleration: "",
       transmission: "",
+      city: "Casablanca",
     },
   });
 
@@ -61,6 +66,7 @@ const AddCarForm = ({ onSubmit }: AddCarFormProps) => {
         acceleration: values.acceleration,
         transmission: values.transmission,
       },
+      city: values.city,
       createdAt: new Date(),
     };
     onSubmit(newCar);
@@ -93,6 +99,31 @@ const AddCarForm = ({ onSubmit }: AddCarFormProps) => {
               <FormControl>
                 <Input placeholder="Tesla" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="city"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>City</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a city" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {CITIES.map((city) => (
+                    <SelectItem key={city} value={city}>
+                      {city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
