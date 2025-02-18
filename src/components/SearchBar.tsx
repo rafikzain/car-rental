@@ -80,113 +80,124 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
   };
 
   return (
-    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col md:flex-row w-full max-w-6xl gap-4">
-      <div className="relative flex-1">
-        <Input
-          type="text"
-          placeholder="Search cars by name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-4"
-        />
-      </div>
-      
-      <Select value={selectedBrand} onValueChange={setSelectedBrand}>
-        <SelectTrigger className="w-full md:w-[200px] bg-white">
-          <SelectValue placeholder="Select brand" />
-        </SelectTrigger>
-        <SelectContent className="bg-white">
-          <SelectItem value="all">All brands</SelectItem>
-          {brands.map((brand) => (
-            <SelectItem key={brand.id} value={brand.name}>
-              {brand.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <Select value={selectedCity} onValueChange={setSelectedCity}>
-        <SelectTrigger className="w-full md:w-[200px] bg-white">
-          <SelectValue placeholder="Select city" />
-        </SelectTrigger>
-        <SelectContent className="bg-white">
-          <SelectItem value="all">All cities</SelectItem>
-          {CITIES.map((city) => (
-            <SelectItem key={city} value={city}>
-              {city}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <Select value={selectedUser} onValueChange={setSelectedUser}>
-        <SelectTrigger className="w-full md:w-[200px] bg-white">
-          <SelectValue placeholder="Select seller" />
-        </SelectTrigger>
-        <SelectContent className="bg-white">
-          <SelectItem value="all">All sellers</SelectItem>
-          {users.map((user) => (
-            <SelectItem key={user.id} value={user.id}>
-              {user.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <div className="flex gap-2">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                "w-full md:w-[200px] justify-start text-left font-normal bg-white",
-                !startDate && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {startDate ? format(startDate, "PPP") : <span>From date</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={startDate}
-              onSelect={setStartDate}
-              initialFocus
+    <div className="w-full max-w-7xl mx-auto space-y-4">
+      <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
+            <Input
+              type="text"
+              placeholder="Search cars by name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full h-12 text-lg"
             />
-          </PopoverContent>
-        </Popover>
+          </div>
+          
+          <Select value={selectedBrand} onValueChange={setSelectedBrand}>
+            <SelectTrigger className="w-full md:w-[200px] h-12 bg-white">
+              <SelectValue placeholder="Select brand" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectItem value="all">All brands</SelectItem>
+              {brands.map((brand) => (
+                <SelectItem key={brand.id} value={brand.name}>
+                  {brand.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                "w-full md:w-[200px] justify-start text-left font-normal bg-white",
-                !endDate && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {endDate ? format(endDate, "PPP") : <span>To date</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={endDate}
-              onSelect={setEndDate}
-              disabled={(date) => startDate ? date <= startDate : false}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
+          <Select value={selectedCity} onValueChange={setSelectedCity}>
+            <SelectTrigger className="w-full md:w-[200px] h-12 bg-white">
+              <SelectValue placeholder="Select city" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectItem value="all">All cities</SelectItem>
+              {CITIES.map((city) => (
+                <SelectItem key={city} value={city}>
+                  {city}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-      <Button type="button" variant="default" onClick={handleSearch}>
-        <Search className="h-4 w-4 mr-2" />
-        Search
-      </Button>
-    </form>
+        <div className="flex flex-col md:flex-row gap-4">
+          <Select value={selectedUser} onValueChange={setSelectedUser}>
+            <SelectTrigger className="w-full md:w-[200px] h-12 bg-white">
+              <SelectValue placeholder="Select seller" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectItem value="all">All sellers</SelectItem>
+              {users.map((user) => (
+                <SelectItem key={user.id} value={user.id}>
+                  {user.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <div className="flex flex-1 gap-4">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full md:w-[240px] h-12 justify-start text-left font-normal bg-white",
+                    !startDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {startDate ? format(startDate, "PPP") : <span>From date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={startDate}
+                  onSelect={setStartDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full md:w-[240px] h-12 justify-start text-left font-normal bg-white",
+                    !endDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {endDate ? format(endDate, "PPP") : <span>To date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={endDate}
+                  onSelect={setEndDate}
+                  disabled={(date) => startDate ? date <= startDate : false}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <Button 
+            type="button" 
+            variant="default" 
+            onClick={handleSearch}
+            className="h-12 px-8 text-lg"
+          >
+            <Search className="h-5 w-5 mr-2" />
+            Search
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 };
 
