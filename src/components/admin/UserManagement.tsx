@@ -1,147 +1,149 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
+
+import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import type { User } from "@/types";
-import type { User as AuthUser } from "@supabase/supabase-js";
+import { User } from "@/types";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Ban, CheckCircle } from "lucide-react";
 
-export default function UserManagement() {
+const UserManagement = () => {
   const { toast } = useToast();
-  const [loading, setLoading] = useState<string | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const { data: users, refetch } = useQuery({
-    queryKey: ["users"],
-    queryFn: async () => {
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .order("created_at", { ascending: false });
 
-      if (profilesError) throw profilesError;
+        if (error) throw error;
 
-      const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) throw authError;
+        if (data) {
+          const mappedUsers: User[] = data.map((profile) => ({
+            id: profile.id,
+            email: "",
+            name: profile.name,
+            userType: profile.user_type as "owner" | "renter" | "both" | "admin",
+            phoneNumber: profile.phone_number || undefined,
+            location: profile.location || undefined,
+            isBanned: profile.is_banned || false,
+            isScammer: profile.is_scammer || false,
+            createdAt: new Date(profile.created_at),
+          }));
+          setUsers(mappedUsers);
+        }
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load users",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      return profiles.map((profile): User => {
-        const authUser = (authUsers as AuthUser[]).find(u => u.id === profile.id);
-        return {
-          id: profile.id,
-          email: authUser?.email || "",
-          name: profile.name,
-          userType: profile.user_type as "owner" | "renter" | "both" | "admin",
-          phoneNumber: profile.phone_number || undefined,
-          location: profile.location || undefined,
-          isBanned: profile.is_banned || false,
-          isScammer: profile.is_scammer || false,
-          createdAt: new Date(profile.created_at),
-        };
-      });
-    },
-  });
+    fetchUsers();
+  }, [toast]);
 
-  const handleToggleBan = async (userId: string, currentStatus: boolean) => {
-    setLoading(userId);
+  const handleToggleBan = async (userId: string, currentBanStatus: boolean) => {
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({ is_banned: !currentStatus })
+        .update({ is_banned: !currentBanStatus })
         .eq("id", userId);
 
       if (error) throw error;
 
+      setUsers(
+        users.map((user) =>
+          user.id === userId
+            ? { ...user, isBanned: !currentBanStatus }
+            : user
+        )
+      );
+
       toast({
         title: "Success",
-        description: `User has been ${!currentStatus ? "banned" : "unbanned"}`,
+        description: `User has been ${!currentBanStatus ? "banned" : "unbanned"}`,
       });
-      refetch();
     } catch (error) {
+      console.error("Error updating user:", error);
       toast({
         title: "Error",
         description: "Failed to update user status",
         variant: "destructive",
       });
     }
-    setLoading(null);
   };
 
-  const handleToggleScammer = async (userId: string, currentStatus: boolean) => {
-    setLoading(userId);
-    try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ is_scammer: !currentStatus })
-        .eq("id", userId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: `User has been ${
-          !currentStatus ? "marked" : "unmarked"
-        } as scammer`,
-      });
-      refetch();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update user status",
-        variant: "destructive",
-      });
-    }
-    setLoading(null);
-  };
-
-  if (!users) return <div>Loading...</div>;
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="space-y-8">
-      <div className="rounded-md border">
-        <div className="p-4">
-          <h2 className="text-xl font-semibold">User Management</h2>
-          <p className="text-sm text-gray-500">
-            Manage user accounts, ban users, and mark scammers
-          </p>
-        </div>
-        <div className="divide-y">
-          {users.map((user) => (
-            <div
-              key={user.id}
-              className="flex items-center justify-between p-4 hover:bg-gray-50"
-            >
-              <div>
-                <p className="font-medium">{user.name}</p>
-                <p className="text-sm text-gray-500">{user.email}</p>
-                <p className="text-xs text-gray-400">Type: {user.userType}</p>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">Ban User</span>
-                  <Switch
-                    checked={user.isBanned}
-                    disabled={loading === user.id}
-                    onCheckedChange={() =>
-                      handleToggleBan(user.id, user.isBanned || false)
-                    }
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">Mark as Scammer</span>
-                  <Switch
-                    checked={user.isScammer}
-                    disabled={loading === user.id}
-                    onCheckedChange={() =>
-                      handleToggleScammer(user.id, user.isScammer || false)
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+    <div className="bg-white p-6 rounded-lg shadow-sm">
+      <h2 className="text-2xl font-semibold mb-6">User Management</h2>
+      {users.length === 0 ? (
+        <p className="text-muted-foreground">No users found.</p>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>{user.name}</TableCell>
+                <TableCell className="capitalize">{user.userType}</TableCell>
+                <TableCell>{user.location || "N/A"}</TableCell>
+                <TableCell>
+                  {user.isBanned ? (
+                    <span className="text-red-500 flex items-center gap-1">
+                      <Ban className="h-4 w-4" />
+                      Banned
+                    </span>
+                  ) : (
+                    <span className="text-green-500 flex items-center gap-1">
+                      <CheckCircle className="h-4 w-4" />
+                      Active
+                    </span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant={user.isBanned ? "outline" : "destructive"}
+                    size="sm"
+                    onClick={() => handleToggleBan(user.id, user.isBanned)}
+                  >
+                    {user.isBanned ? "Unban" : "Ban"}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </div>
   );
-}
+};
+
+export default UserManagement;

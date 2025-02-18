@@ -1,5 +1,14 @@
-import { Button } from "@/components/ui/button";
+
 import { Car } from "@/types";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface FeaturedCarsListProps {
   cars: Car[];
@@ -8,28 +17,41 @@ interface FeaturedCarsListProps {
 
 const FeaturedCarsList = ({ cars, onRemove }: FeaturedCarsListProps) => {
   return (
-    <div className="space-y-4">
-      {cars.map((car) => (
-        <div
-          key={car.id}
-          className="flex items-center justify-between p-4 border rounded-lg"
-        >
-          <div className="flex items-center space-x-4">
-            <img
-              src={car.image}
-              alt={car.name}
-              className="w-16 h-16 object-cover rounded"
-            />
-            <div>
-              <h3 className="font-semibold">{car.name}</h3>
-              <p className="text-sm text-gray-600">{car.brand}</p>
-            </div>
-          </div>
-          <Button variant="destructive" onClick={() => onRemove(car.id)}>
-            Remove
-          </Button>
-        </div>
-      ))}
+    <div>
+      {cars.length === 0 ? (
+        <p className="text-muted-foreground">No featured cars yet.</p>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Brand</TableHead>
+              <TableHead>City</TableHead>
+              <TableHead>Daily Rate</TableHead>
+              <TableHead>Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {cars.map((car) => (
+              <TableRow key={car.id}>
+                <TableCell>{car.name}</TableCell>
+                <TableCell>{car.brand}</TableCell>
+                <TableCell>{car.city}</TableCell>
+                <TableCell>${car.dailyRate}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => onRemove(car.id)}
+                  >
+                    Remove
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </div>
   );
 };
