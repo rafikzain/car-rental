@@ -5,6 +5,7 @@ import { Car } from "@/types";
 import AddCarForm from "@/components/admin/AddCarForm";
 import FeaturedCarsList from "@/components/admin/FeaturedCarsList";
 import UserManagement from "@/components/admin/UserManagement";
+import DashboardStats from "@/components/admin/stats/DashboardStats";
 
 const Admin = () => {
   const { toast } = useToast();
@@ -31,6 +32,8 @@ const Admin = () => {
       <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
 
       <div className="space-y-8">
+        <DashboardStats />
+        
         <UserManagement />
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
