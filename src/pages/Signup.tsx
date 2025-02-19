@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -122,7 +123,7 @@ const Signup = () => {
         <CardHeader>
           <CardTitle>Create an account</CardTitle>
           <CardDescription>
-            Sign up to start buying, renting, or selling cars
+            Sign up to start reserving, renting, or selling cars
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -240,9 +241,9 @@ const Signup = () => {
                   <SelectValue placeholder="Select your primary interest" />
                 </SelectTrigger>
                 <SelectContent className="bg-background border-2 shadow-lg">
-                  <SelectItem value="buyer">Buy Cars</SelectItem>
+                  <SelectItem value="buyer">Reserve Cars</SelectItem>
                   <SelectItem value="seller">Sell Cars</SelectItem>
-                  <SelectItem value="both">Buy and Sell Cars</SelectItem>
+                  <SelectItem value="both">Reserve and Sell Cars</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
