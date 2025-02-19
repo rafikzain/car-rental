@@ -49,7 +49,7 @@ const Signup = () => {
     setIsLoading(true);
 
     try {
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -62,21 +62,6 @@ const Signup = () => {
       });
 
       if (signUpError) throw signUpError;
-
-      // Only create profile if we have a user
-      if (data.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: data.user.id,
-              name,
-              user_type: userType as "buyer" | "seller" | "both" | "admin",
-            },
-          ]);
-
-        if (profileError) throw profileError;
-      }
 
       toast({
         title: "Success",
