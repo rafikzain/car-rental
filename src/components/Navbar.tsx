@@ -45,7 +45,21 @@ const Navbar = () => {
       .single();
 
     if (!error && data) {
-      setUser(data as User);
+      // Map the database fields to our User type
+      const mappedUser: User = {
+        id: data.id,
+        email: data.id, // We don't have direct access to email from profiles, using id as a placeholder
+        name: data.name,
+        userType: data.user_type as "owner" | "renter" | "both" | "admin",
+        phoneNumber: data.phone_number || undefined,
+        location: data.location || undefined,
+        isBanned: data.is_banned || false,
+        isScammer: data.is_scammer || false,
+        avatarUrl: data.avatar_url || undefined,
+        createdAt: new Date(data.created_at)
+      };
+      
+      setUser(mappedUser);
     }
   };
 
